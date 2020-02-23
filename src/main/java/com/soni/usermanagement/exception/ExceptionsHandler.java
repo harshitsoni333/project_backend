@@ -1,4 +1,4 @@
-package com.soni.usermanagement;
+package com.soni.usermanagement.exception;
 
 import java.time.LocalDateTime;
 import com.soni.usermanagement.exception.classes.UserNotFoundException;
@@ -19,7 +19,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler{
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
-            LocalDateTime.now(), ex.getMessage(), HttpStatus.NOT_FOUND.value()
+            LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.toString(), ex.getMessage()
             );
         
         return new ResponseEntity<>(
