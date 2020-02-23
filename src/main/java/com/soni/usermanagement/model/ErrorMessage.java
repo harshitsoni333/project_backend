@@ -1,4 +1,4 @@
-package com.soni.usermanagement;
+package com.soni.usermanagement.model;
 
 import java.time.LocalDateTime;
 

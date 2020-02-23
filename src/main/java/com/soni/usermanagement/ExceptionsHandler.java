@@ -2,6 +2,7 @@ package com.soni.usermanagement;
 
 import java.time.LocalDateTime;
 import com.soni.usermanagement.exception.classes.UserNotFoundException;
+import com.soni.usermanagement.model.ErrorMessage;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
