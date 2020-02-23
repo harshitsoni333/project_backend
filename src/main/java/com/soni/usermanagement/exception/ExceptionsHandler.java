@@ -19,7 +19,7 @@ public class ExceptionsHandler extends ResponseEntityExceptionHandler{
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
-            LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.toString(), ex.getMessage()
+            LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage()
             );
         
         return new ResponseEntity<>(
