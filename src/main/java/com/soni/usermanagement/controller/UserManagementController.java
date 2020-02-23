@@ -6,10 +6,9 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.classes.EmailNotValidException;
-import com.soni.usermanagement.exception.classes.NoUsersFoundException;
-import com.soni.usermanagement.exception.classes.UserNotFoundException;
-
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.NoUsersFoundException;
+import com.soni.usermanagement.exception.UserNotFoundException;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserManagementRepo;
 

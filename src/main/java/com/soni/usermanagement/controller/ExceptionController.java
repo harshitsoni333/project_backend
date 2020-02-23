@@ -1,7 +1,8 @@
-package com.soni.usermanagement.exception;
+package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
-import com.soni.usermanagement.exception.classes.UserNotFoundException;
+
+import com.soni.usermanagement.exception.UserNotFoundException;
 import com.soni.usermanagement.model.ErrorMessage;
 
 import org.springframework.http.HttpHeaders;
@@ -13,7 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class ExceptionsHandler extends ResponseEntityExceptionHandler{
+public class ExceptionController extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
