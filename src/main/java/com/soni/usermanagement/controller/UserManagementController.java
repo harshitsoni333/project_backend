@@ -79,7 +79,7 @@ public class UserManagementController {
         UserManagement user = repo.findByEmail(email).orElse(null);
 
         if(user == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(email);
         }
 
         if (emailValidator(newUser.getEmail())) {
@@ -102,7 +102,7 @@ public class UserManagementController {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(email);
         }
         return user;
     }
@@ -112,7 +112,7 @@ public class UserManagementController {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) {
-            throw new UserNotFoundException();
+            throw new UserNotFoundException(email);
         }
         repo.deleteById(user.getId());
         return user;
