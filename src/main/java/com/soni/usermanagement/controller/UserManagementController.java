@@ -27,9 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserManagementController {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// E-Mail Validation function
+    @Autowired
+    private static UserManagementRepo repo;
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // E-Mail Validation function
     private static final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
@@ -43,11 +46,16 @@ public class UserManagementController {
         Matcher matcher = EMAIL_PATTERN.matcher(email);
         return matcher.matches();
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Autowired
-    private UserManagementRepo repo;
+    public static boolean emailAlreadyExists(String email) {
+        List<UserManagement> users = repo.findAll();
+            for(UserManagement obj: users) {
+                if(obj.getEmail().equals(email)) return true;
+            }
+            return false;
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @GetMapping("/users")
     public List<UserManagement> getAllUsers() {
@@ -67,13 +75,8 @@ public class UserManagementController {
         if (emailValidator(email)) {
             // email is valid
 
-            List<UserManagement> users = repo.findAll();
-            for(UserManagement obj: users) {
-                if(obj.getEmail().equals(email)) {
-                    throw new EmailAlreadyExists(email);
-                }
-            }
-            
+            if(emailAlreadyExists(email)) throw new EmailAlreadyExists(email);
+
             repo.save(user);
             return user;
 		}
@@ -87,13 +90,17 @@ public class UserManagementController {
     public UserManagement updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
+        String newEmail = newUser.getEmail();
 
         if(user == null) {
             throw new UserNotFoundException(email);
         }
 
-        if (emailValidator(newUser.getEmail())) {
+        if (emailValidator(newEmail)) {
             // email is valid
+            if(!email.equals(newEmail) && emailAlreadyExists(newEmail)) {
+                throw new EmailAlreadyExists(newEmail);
+            }
             user.setEmail(newUser.getEmail());
             user.setFirstname(newUser.getFirstname());
             user.setLastname(newUser.getLastname());
