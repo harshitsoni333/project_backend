@@ -11,6 +11,7 @@ import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.NewUserAdded;
 import com.soni.usermanagement.exception.NoUsersFoundException;
 import com.soni.usermanagement.exception.UserNotFoundException;
+import com.soni.usermanagement.exception.UserUpdated;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserManagementRepo;
 
@@ -84,7 +85,7 @@ public class UserManagementController {
     }
 
     @PutMapping(path="/user/{email}", consumes = "application/json")
-    public UserManagement updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
+    public void updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
         String newEmail = newUser.getEmail();
@@ -96,7 +97,6 @@ public class UserManagementController {
         if (emailValidator(newEmail)) {
             // email is valid
             if(!email.equals(newEmail)) {
-
                 List<UserManagement> users = repo.findAll();
                 for(UserManagement obj: users) {
                     if(obj.getEmail().equals(newEmail)) throw new EmailAlreadyExists(newEmail);
@@ -108,7 +108,7 @@ public class UserManagementController {
             user.setLastname(newUser.getLastname());
             user.setProfile(newUser.getProfile());
             repo.save(user);
-            return user;
+            throw new UserUpdated(newEmail);
 		}
 		else {
             //email is not valid
