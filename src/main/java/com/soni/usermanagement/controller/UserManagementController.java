@@ -68,7 +68,7 @@ public class UserManagementController {
 		}
 		else {
             //email is not valid
-            throw new EmailNotValidException();
+            throw new EmailNotValidException(user.getEmail());
 		}
     }
 
@@ -92,7 +92,7 @@ public class UserManagementController {
 		}
 		else {
             //email is not valid
-            throw new EmailNotValidException();
+            throw new EmailNotValidException(newUser.getEmail());
         }
     }
 

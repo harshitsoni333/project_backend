@@ -60,7 +60,7 @@ public class FileManagementController {
         for(String i: emails) {
             if (!emailValidator(i)) {
                 // email is not valid
-                throw new EmailNotValidException();
+                throw new EmailNotValidException(i);
             }
         }
          
@@ -78,7 +78,7 @@ public class FileManagementController {
         for(String i: emails) {
             if (!emailValidator(i)) {
                 // email is not valid
-                throw new EmailNotValidException();
+                throw new EmailNotValidException(i);
             }
         }
 
