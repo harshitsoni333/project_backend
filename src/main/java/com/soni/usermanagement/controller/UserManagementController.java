@@ -66,11 +66,14 @@ public class UserManagementController {
 
         if (emailValidator(email)) {
             // email is valid
-            
+
             List<UserManagement> users = repo.findAll();
             for(UserManagement obj: users) {
-                if(obj.getEmail() == email) throw new EmailAlreadyExists(email);
+                if(obj.getEmail().equals(email)) {
+                    throw new EmailAlreadyExists(email);
+                }
             }
+            
             repo.save(user);
             return user;
 		}
