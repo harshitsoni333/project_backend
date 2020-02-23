@@ -2,6 +2,8 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.NoUsersFoundException;
 import com.soni.usermanagement.exception.UserNotFoundException;
 import com.soni.usermanagement.model.ErrorMessage;
 
@@ -16,14 +18,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler({UserNotFoundException.class, NoUsersFoundException.class})
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(
-            LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage()
-            );
+        ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage());
         
-        return new ResponseEntity<>(
-            errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(EmailNotValidException.class)
+    public ResponseEntity<Object> emailException(Exception ex, WebRequest request) {
+
+        ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.toString(), ex.getMessage());
+        
+        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
 }
