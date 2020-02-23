@@ -2,6 +2,7 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
+import com.soni.usermanagement.exception.EmailAlreadyExists;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.NoUsersFoundException;
 import com.soni.usermanagement.exception.UserNotFoundException;
@@ -29,7 +30,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(EmailNotValidException.class)
-    public ResponseEntity<Object> emailException(Exception ex, WebRequest request) {
+    public ResponseEntity<Object> emailNotValidHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
             LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(), HttpStatus.NOT_ACCEPTABLE.getReasonPhrase(), ex.getMessage()
@@ -38,4 +39,14 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(EmailAlreadyExists.class)
+    public ResponseEntity<Object> emailAlreadyExistsHandler(Exception ex, WebRequest request) {
+
+        ErrorMessage errorMessage = new ErrorMessage(
+            LocalDateTime.now(), HttpStatus.CONFLICT.value(), HttpStatus.CONFLICT.getReasonPhrase(), ex.getMessage()
+            );
+        
+        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
+    }
+    
 }

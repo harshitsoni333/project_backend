@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
+import com.soni.usermanagement.exception.EmailAlreadyExists;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.NoUsersFoundException;
 import com.soni.usermanagement.exception.UserNotFoundException;
@@ -61,14 +62,21 @@ public class UserManagementController {
     @PostMapping(path = "/user", consumes = "application/json")
     public UserManagement addUser(@RequestBody UserManagement user) {
 
-        if (emailValidator(user.getEmail())) {
+        String email = user.getEmail();
+
+        if (emailValidator(email)) {
             // email is valid
+            
+            List<UserManagement> users = repo.findAll();
+            for(UserManagement obj: users) {
+                if(obj.getEmail() == email) throw new EmailAlreadyExists(email);
+            }
             repo.save(user);
             return user;
 		}
 		else {
             //email is not valid
-            throw new EmailNotValidException(user.getEmail());
+            throw new EmailNotValidException(email);
 		}
     }
 
