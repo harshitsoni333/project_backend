@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.EmailAlreadyExists;
 import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.NewUserAdded;
 import com.soni.usermanagement.exception.NoUsersFoundException;
 import com.soni.usermanagement.exception.UserNotFoundException;
 import com.soni.usermanagement.model.UserManagement;
@@ -28,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserManagementController {
 
     @Autowired
-    private static UserManagementRepo repo;
+    private UserManagementRepo repo;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,13 +48,6 @@ public class UserManagementController {
         return matcher.matches();
     }
 
-    public static boolean emailAlreadyExists(String email) {
-        List<UserManagement> users = repo.findAll();
-            for(UserManagement obj: users) {
-                if(obj.getEmail().equals(email)) return true;
-            }
-            return false;
-    }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -68,17 +62,20 @@ public class UserManagementController {
     }
 
     @PostMapping(path = "/user", consumes = "application/json")
-    public UserManagement addUser(@RequestBody UserManagement user) {
+    public void addUser(@RequestBody UserManagement user) {
 
         String email = user.getEmail();
 
         if (emailValidator(email)) {
             // email is valid
 
-            if(emailAlreadyExists(email)) throw new EmailAlreadyExists(email);
+            List<UserManagement> users = repo.findAll();
+            for(UserManagement obj: users) {
+                if(obj.getEmail().equals(email)) throw new EmailAlreadyExists(email);
+            }
 
             repo.save(user);
-            return user;
+            throw new NewUserAdded(email);
 		}
 		else {
             //email is not valid
@@ -98,9 +95,14 @@ public class UserManagementController {
 
         if (emailValidator(newEmail)) {
             // email is valid
-            if(!email.equals(newEmail) && emailAlreadyExists(newEmail)) {
-                throw new EmailAlreadyExists(newEmail);
+            if(!email.equals(newEmail)) {
+
+                List<UserManagement> users = repo.findAll();
+                for(UserManagement obj: users) {
+                    if(obj.getEmail().equals(newEmail)) throw new EmailAlreadyExists(newEmail);
+                }
             }
+
             user.setEmail(newUser.getEmail());
             user.setFirstname(newUser.getFirstname());
             user.setLastname(newUser.getLastname());

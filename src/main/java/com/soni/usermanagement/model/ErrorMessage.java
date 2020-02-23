@@ -8,14 +8,12 @@ public class ErrorMessage {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime timestamp;
-    private int status;
-    private String error;
+    private String status;
     private String message;
 
-    public ErrorMessage(LocalDateTime timestamp, int status, String error, String message) {
+    public ErrorMessage(LocalDateTime timestamp, String status, String message) {
         this.timestamp = timestamp;
         this.status = status;
-        this.error = error;
         this.message = message;
     }
 
@@ -27,20 +25,12 @@ public class ErrorMessage {
         this.timestamp = timestamp;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
     public String getMessage() {
@@ -50,5 +40,6 @@ public class ErrorMessage {
     public void setMessage(String message) {
         this.message = message;
     }
+
     
 }
