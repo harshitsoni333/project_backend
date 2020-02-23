@@ -10,6 +10,7 @@ import com.soni.usermanagement.exception.EmailAlreadyExists;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.NewUserAdded;
 import com.soni.usermanagement.exception.NoUsersFoundException;
+import com.soni.usermanagement.exception.UserDeleted;
 import com.soni.usermanagement.exception.UserNotFoundException;
 import com.soni.usermanagement.exception.UserUpdated;
 import com.soni.usermanagement.model.UserManagement;
@@ -134,6 +135,6 @@ public class UserManagementController {
             throw new UserNotFoundException(email);
         }
         repo.deleteById(user.getId());
-        return user;
+        throw new UserDeleted(email);
     }
 }

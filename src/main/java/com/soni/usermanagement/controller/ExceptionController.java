@@ -6,7 +6,9 @@ import com.soni.usermanagement.exception.EmailAlreadyExists;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.NewUserAdded;
 import com.soni.usermanagement.exception.NoUsersFoundException;
+import com.soni.usermanagement.exception.UserDeleted;
 import com.soni.usermanagement.exception.UserNotFoundException;
+import com.soni.usermanagement.exception.UserUpdated;
 import com.soni.usermanagement.model.ErrorMessage;
 
 import org.springframework.http.HttpHeaders;
@@ -50,7 +52,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(NewUserAdded.class)
+    @ExceptionHandler({NewUserAdded.class, UserUpdated.class, UserDeleted.class})
     public ResponseEntity<Object> newUserAddedHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
