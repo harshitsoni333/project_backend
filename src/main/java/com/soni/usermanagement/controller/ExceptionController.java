@@ -21,7 +21,9 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler({UserNotFoundException.class, NoUsersFoundException.class})
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage());
+        ErrorMessage errorMessage = new ErrorMessage(
+            LocalDateTime.now(), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase(), ex.getMessage()
+            );
         
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
@@ -29,7 +31,9 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmailNotValidException.class)
     public ResponseEntity<Object> emailException(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.toString(), ex.getMessage());
+        ErrorMessage errorMessage = new ErrorMessage(
+            LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.value(), HttpStatus.NOT_ACCEPTABLE.getReasonPhrase(), ex.getMessage()
+            );
         
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
