@@ -1,4 +1,4 @@
-package com.soni.usermanagement.exception;
+package com.soni.usermanagement.exception.error;
 
 public class NoUsersFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;

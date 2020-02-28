@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.model.FileManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
 

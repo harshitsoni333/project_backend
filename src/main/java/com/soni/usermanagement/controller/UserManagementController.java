@@ -6,13 +6,13 @@ import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.EmailAlreadyExists;
-import com.soni.usermanagement.exception.EmailNotValidException;
-import com.soni.usermanagement.exception.NewUserAdded;
-import com.soni.usermanagement.exception.NoUsersFoundException;
-import com.soni.usermanagement.exception.UserDeleted;
-import com.soni.usermanagement.exception.UserNotFoundException;
-import com.soni.usermanagement.exception.UserUpdated;
+import com.soni.usermanagement.exception.error.EmailAlreadyExists;
+import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.NoUsersFoundException;
+import com.soni.usermanagement.exception.error.UserNotFoundException;
+import com.soni.usermanagement.exception.success.NewUserAdded;
+import com.soni.usermanagement.exception.success.UserDeleted;
+import com.soni.usermanagement.exception.success.UserUpdated;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserManagementRepo;
 

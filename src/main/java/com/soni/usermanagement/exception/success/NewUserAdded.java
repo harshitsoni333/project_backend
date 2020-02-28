@@ -1,4 +1,4 @@
-package com.soni.usermanagement.exception;
+package com.soni.usermanagement.exception.success;
 
 public class NewUserAdded extends RuntimeException {
     private static final long serialVersionUID = 1L;
