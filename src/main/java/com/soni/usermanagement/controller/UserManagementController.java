@@ -97,9 +97,10 @@ public class UserManagementController {
 
         if (emailValidator(newEmail)) {
             // email is valid
-            if(!email.equals(newEmail)) {
-                List<UserManagement> users = repo.findAll();
-                for(UserManagement obj: users) {
+            List<UserManagement> users = repo.findAll();
+            for(UserManagement obj: users) {
+                if(obj.getEmail().equals(user.getEmail()))  continue;
+                else {
                     if(obj.getEmail().equals(newEmail)) throw new EmailAlreadyExists(newEmail);
                 }
             }
