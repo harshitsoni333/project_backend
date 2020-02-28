@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.model.FileManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
 
@@ -49,7 +50,9 @@ public class FileManagementController {
 
     @GetMapping("/files")
     public List<FileManagement> getAllFiles() {
-        return repo.findAll();
+        List<FileManagement> files = repo.findAll();
+        if(files.isEmpty()) throw new NoFilesFound();
+        else return files;
     }
 
     @PostMapping(path="/file", consumes = "application/json")
