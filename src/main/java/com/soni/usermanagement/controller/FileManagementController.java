@@ -9,7 +9,9 @@ import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.FileAlreadyExists;
+import com.soni.usermanagement.exception.error.FileNotFound;
 import com.soni.usermanagement.exception.error.NoFilesFound;
+import com.soni.usermanagement.exception.success.FileUpdated;
 import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.model.FileManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
@@ -74,7 +76,7 @@ public class FileManagementController {
         List<FileManagement> files = repo.findAll();
         for(FileManagement obj: files) {
             if(obj.getFilecode().equals(filecode))  
-            throw new FileAlreadyExists(filecode, obj.getFilename());
+            throw new FileAlreadyExists(obj.getFilecode(), obj.getFilename());
         }
 
         repo.save(file);
@@ -86,21 +88,35 @@ public class FileManagementController {
         
         FileManagement file = repo.findByFilecode(filecode).orElse(null);
 
-        List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
+        if(file == null) {
+            throw new FileNotFound(filecode);
+        }
 
+        List<FileManagement> files = repo.findAll();
+        for(FileManagement obj: files) {
+            if(obj.getFilecode().equals(file.getFilecode())) continue;
+            else {
+                if(obj.getFilecode().equals(newFile.getFilecode())) {
+                    throw new FileAlreadyExists(obj.getFilecode(), obj.getFilename());
+                }
+            }
+        }
+
+        // checking for invalid emails
+        List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
         for(String i: emails) {
-            if (!emailValidator(i)) {
-                // email is not valid
+            if (!emailValidator(i)) {                   // if email not valid
                 throw new EmailNotValidException(i);
             }
         }
 
+        file.setFilecode(newFile.getFilecode());
         file.setFilename(newFile.getFilename());
         file.setDescription(newFile.getDescription());
         file.setContacts(newFile.getContacts());
 
         repo.save(file);
-        return file;
+        throw new FileUpdated(file.getFilecode(), file.getFilename());
     }
 
     @GetMapping("/file/{filecode}")
