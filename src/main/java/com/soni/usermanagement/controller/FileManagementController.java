@@ -11,6 +11,7 @@ import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.FileAlreadyExists;
 import com.soni.usermanagement.exception.error.FileNotFound;
 import com.soni.usermanagement.exception.error.NoFilesFound;
+import com.soni.usermanagement.exception.success.FileDeleted;
 import com.soni.usermanagement.exception.success.FileUpdated;
 import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.model.FileManagement;
@@ -60,7 +61,7 @@ public class FileManagementController {
     }
 
     @PostMapping(path="/file", consumes = "application/json")
-    public FileManagement addFile(@RequestBody FileManagement file) {
+    public void addFile(@RequestBody FileManagement file) {
         
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
@@ -84,7 +85,7 @@ public class FileManagementController {
     }
 
     @PutMapping(path = "/file/{filecode}", consumes = "application/json")
-    public FileManagement updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("filecode") String filecode) {
+    public void updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("filecode") String filecode) {
         
         FileManagement file = repo.findByFilecode(filecode).orElse(null);
 
@@ -123,15 +124,17 @@ public class FileManagementController {
     public FileManagement getFile(@PathVariable("filecode") String filecode) {
 
         FileManagement file = repo.findByFilecode(filecode).orElse(null);
-        return file;
+
+        if(file == null) throw new FileNotFound(filecode);
+        else return file;
     }
 
     @DeleteMapping("file/{filecode}")
-    public FileManagement deleteFile(@PathVariable("filecode") String filecode) {
+    public void deleteFile(@PathVariable("filecode") String filecode) {
 
         FileManagement file = repo.findByFilecode(filecode).orElse(null);
         repo.deleteById(file.getId());
-        return file;
+        throw new FileDeleted(file.getFilecode(), file.getFilename());
     }
 
 }
