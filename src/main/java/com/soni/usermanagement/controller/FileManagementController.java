@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.FileAlreadyExists;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.model.FileManagement;
@@ -59,15 +60,23 @@ public class FileManagementController {
     @PostMapping(path="/file", consumes = "application/json")
     public FileManagement addFile(@RequestBody FileManagement file) {
         
+        // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
-
         for(String i: emails) {
             if (!emailValidator(i)) {
                 // email is not valid
                 throw new EmailNotValidException(i);
             }
         }
-         
+
+        // CHECKING IF NEW ENTRY ALREADY EXISTS 
+        String filecode = file.getFilecode();
+        List<FileManagement> files = repo.findAll();
+        for(FileManagement obj: files) {
+            if(obj.getFilecode().equals(filecode))  
+            throw new FileAlreadyExists(filecode, obj.getFilename());
+        }
+
         repo.save(file);
         throw new NewFileAdded(file.getFilecode(), file.getFilename());
     }

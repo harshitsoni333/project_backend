@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.soni.usermanagement.exception.error.EmailAlreadyExists;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.FileAlreadyExists;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.error.NoUsersFoundException;
 import com.soni.usermanagement.exception.error.UserNotFoundException;
@@ -44,7 +45,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(EmailAlreadyExists.class)
+    @ExceptionHandler({EmailAlreadyExists.class, FileAlreadyExists.class})
     public ResponseEntity<Object> emailAlreadyExistsHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
