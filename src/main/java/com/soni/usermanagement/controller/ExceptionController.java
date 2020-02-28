@@ -7,6 +7,7 @@ import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.error.NoUsersFoundException;
 import com.soni.usermanagement.exception.error.UserNotFoundException;
+import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
@@ -53,7 +54,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler({NewUserAdded.class, UserUpdated.class, UserDeleted.class})
+    @ExceptionHandler({NewUserAdded.class, UserUpdated.class, UserDeleted.class, NewFileAdded.class})
     public ResponseEntity<Object> newUserAddedHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(

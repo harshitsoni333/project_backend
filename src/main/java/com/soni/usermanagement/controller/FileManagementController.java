@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoFilesFound;
+import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.model.FileManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
 
@@ -68,7 +69,7 @@ public class FileManagementController {
         }
          
         repo.save(file);
-        return file;
+        throw new NewFileAdded(file.getFilecode(), file.getFilename());
     }
 
     @PutMapping(path = "/file/{filecode}", consumes = "application/json")
