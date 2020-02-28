@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.soni.usermanagement.exception.error.EmailAlreadyExists;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.FileAlreadyExists;
+import com.soni.usermanagement.exception.error.FileNotFound;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.error.NoUsersFoundException;
 import com.soni.usermanagement.exception.error.UserNotFoundException;
@@ -27,7 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class})
+    @ExceptionHandler({UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class, FileNotFound.class})
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
