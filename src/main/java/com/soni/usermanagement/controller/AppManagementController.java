@@ -135,6 +135,6 @@ public class AppManagementController {
             repo.save(bank);
             throw new BankUpdated(bank.getBankCode(), bank.getBankName());
     }
-}
 
-*/ 
+    */
+}
