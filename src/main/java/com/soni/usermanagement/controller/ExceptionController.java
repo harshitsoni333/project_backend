@@ -12,6 +12,7 @@ import com.soni.usermanagement.exception.error.NoBanksFound;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.error.NoUsersFoundException;
 import com.soni.usermanagement.exception.error.UserNotFoundException;
+import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.FileDeleted;
 import com.soni.usermanagement.exception.success.FileUpdated;
 import com.soni.usermanagement.exception.success.NewBankAdded;
@@ -62,7 +63,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler({NewBankAdded.class, NewUserAdded.class, UserUpdated.class, UserDeleted.class, FileDeleted.class, NewFileAdded.class, FileUpdated.class})
+    @ExceptionHandler({BankDeleted.class, NewBankAdded.class, NewUserAdded.class, UserUpdated.class, UserDeleted.class, FileDeleted.class, NewFileAdded.class, FileUpdated.class})
     public ResponseEntity<Object> newUserAddedHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(

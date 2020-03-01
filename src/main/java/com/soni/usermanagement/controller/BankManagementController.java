@@ -10,11 +10,13 @@ import com.soni.usermanagement.exception.error.BankAlreadyExists;
 import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoBanksFound;
+import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.NewBankAdded;
 import com.soni.usermanagement.model.BankManagement;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -86,5 +88,12 @@ public class BankManagementController {
         throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
     }
 
+    @DeleteMapping("/banks/{bankCode}")
+    public void deleteBank(@PathVariable("bankCode") String bankCode) {
+        BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+        repo.deleteById(bank.getId());
+        throw new BankDeleted(bank.getBankCode(), bank.getBankName());
+    }
 
+    
 }
