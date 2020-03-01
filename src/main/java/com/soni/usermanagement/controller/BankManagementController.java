@@ -91,9 +91,9 @@ public class BankManagementController {
     @DeleteMapping("/banks/{bankCode}")
     public void deleteBank(@PathVariable("bankCode") String bankCode) {
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+        if(bank == null) throw new BankNotFound(bankCode);
         repo.deleteById(bank.getId());
         throw new BankDeleted(bank.getBankCode(), bank.getBankName());
     }
 
-    
 }

@@ -1,6 +1,7 @@
 package com.soni.usermanagement.controller;
 
 import java.util.List;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -133,8 +134,8 @@ public class FileManagementController {
     public void deleteFile(@PathVariable("filecode") String filecode) {
 
         FileManagement file = repo.findByFilecode(filecode).orElse(null);
+        if(file == null) throw new FileNotFound(filecode);
         repo.deleteById(file.getId());
         throw new FileDeleted(file.getFilecode(), file.getFilename());
     }
-
 }
