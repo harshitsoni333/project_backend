@@ -2,6 +2,9 @@ package com.soni.usermanagement.controller;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.validation.Valid;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -11,6 +14,7 @@ import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoBanksFound;
 import com.soni.usermanagement.exception.success.BankDeleted;
+import com.soni.usermanagement.exception.success.BankUpdated;
 import com.soni.usermanagement.exception.success.NewBankAdded;
 import com.soni.usermanagement.model.BankManagement;
 
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -96,4 +101,37 @@ public class BankManagementController {
         throw new BankDeleted(bank.getBankCode(), bank.getBankName());
     }
 
+    @PutMapping("/banks/{bankCode}")
+    public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
+        BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+
+            if(bank == null) {
+                throw new BankNotFound(bankCode);
+            }
+
+            // checking for duplicate entry
+            List<BankManagement> banks = repo.findAll();
+            for(BankManagement obj: banks) {
+                if(obj.getBankCode().equals(bank.getBankCode())) continue;
+                else if(obj.getBankCode().equals(newBank.getBankCode())) {
+                        throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
+                }
+            }
+
+            // checking for invalid emails
+            List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
+            for(String email: emails) {
+                // if email not valid
+                if (!emailValidator(email)) {
+                    throw new EmailNotValidException(email);
+                }
+            }
+
+            bank.setBankCode(newBank.getBankCode());
+            bank.setBankName(newBank.getBankName());
+            bank.setContacts(newBank.getContacts());
+
+            repo.save(bank);
+            throw new BankUpdated(bank.getBankCode(), bank.getBankName());
+    }
 }
