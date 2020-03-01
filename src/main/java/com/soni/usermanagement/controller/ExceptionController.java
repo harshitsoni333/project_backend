@@ -3,6 +3,7 @@ package com.soni.usermanagement.controller;
 import java.time.LocalDateTime;
 
 import com.soni.usermanagement.exception.error.BankAlreadyExists;
+import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailAlreadyExists;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.FileAlreadyExists;
@@ -31,7 +32,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({NoBanksFound.class, UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class, FileNotFound.class})
+    @ExceptionHandler({BankNotFound.class, NoBanksFound.class, UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class, FileNotFound.class})
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(

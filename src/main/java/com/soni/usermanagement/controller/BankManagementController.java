@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.soni.usermanagement.repository.BankManagementRepo;
 import com.soni.usermanagement.exception.error.BankAlreadyExists;
+import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoBanksFound;
 import com.soni.usermanagement.exception.success.NewBankAdded;
@@ -15,6 +16,7 @@ import com.soni.usermanagement.model.BankManagement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +54,13 @@ public class BankManagementController {
         else return banks;
     }
 
+    @GetMapping("/banks/{bankCode}")
+    public BankManagement getBank(@PathVariable("bankCode") String bankCode) {
+        BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+        if(bank == null) throw new BankNotFound(bankCode);
+        else return bank;
+    }
+
     @PostMapping("/banks")
     public void addBank(@RequestBody BankManagement newBank) {
 
@@ -76,5 +85,6 @@ public class BankManagementController {
         repo.save(newBank);
         throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
     }
+
 
 }
