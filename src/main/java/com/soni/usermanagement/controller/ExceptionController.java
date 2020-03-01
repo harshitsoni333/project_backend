@@ -2,12 +2,14 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
+import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.BankAlreadyExists;
 import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailAlreadyExists;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.FileAlreadyExists;
 import com.soni.usermanagement.exception.error.FileNotFound;
+import com.soni.usermanagement.exception.error.NoAppsFound;
 import com.soni.usermanagement.exception.error.NoBanksFound;
 import com.soni.usermanagement.exception.error.NoFilesFound;
 import com.soni.usermanagement.exception.error.NoUsersFoundException;
@@ -34,7 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({BankNotFound.class, NoBanksFound.class, UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class, FileNotFound.class})
+    @ExceptionHandler({AppNotFound.class, NoAppsFound.class, BankNotFound.class, NoBanksFound.class, UserNotFoundException.class, NoUsersFoundException.class, NoFilesFound.class, FileNotFound.class})
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
