@@ -9,12 +9,14 @@ import com.soni.usermanagement.exception.error.AppAlreadyExists;
 import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoAppsFound;
+import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.NewAppAdded;
 import com.soni.usermanagement.model.AppManagement;
 import com.soni.usermanagement.repository.AppManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,7 +63,7 @@ public class AppManagementController {
         else return app;
     }
 
-    @PostMapping(" apps")
+    @PostMapping("/apps")
     public void addBank(@RequestBody AppManagement newApp) {
 
         // checking for invalid e-mails
@@ -86,29 +88,27 @@ public class AppManagementController {
         throw new NewAppAdded(newApp.getAppCode(), newApp.getAppName());
     }
 
-    /*
     @DeleteMapping(" apps/{appCode}")
     public void deleteBank(@PathVariable("appCode") String appCode) {
-        AppManagement app = repo.findByBankCode(appCode).orElse(null);
-        if app == null) throw new BankNotFound(appCode);
-        repo.deleteById app.getId());
-        throw new BankDeleted app.getAppCode(), app.getBankName());
+        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+        if(app == null) throw new AppNotFound(appCode);
+        repo.deleteById(app.getId());
+        throw new AppDeleted(app.getAppCode(), app.getAppName());
     }
-
+/*
     @PutMapping(" apps/{appCode}")
     public void updateBank(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
-        AppManagement app = repo.findByBankCode(appCode).orElse(null);
+        AppManagement app = repo.findByAppCode(appCode).orElse(null);
 
             if app == null) {
-                throw new BankNotFound(appCode);
-            }
+                throw new AppNotFound(appCode);(            }
 
             // checking for duplicate entry
             List<AppManagement> apps = repo.findAll();
             for(AppManagement obj: apps) {
                 if(obj.getAppCode().equals app.getAppCode())) continue;
                 else if(obj.getAppCode().equals newApp.getAppCode())) {
-                        throw new BankAlreadyExists(obj.getAppCode(), obj.getBankName());
+                        throw new BankAlreadyExists(obj.getAppCode(), obj.getAppName());
                 }
             }
 
@@ -122,11 +122,11 @@ public class AppManagementController {
             }
 
          app.setBankCode newApp.getAppCode());
-         app.setBankName newApp.getBankName());
+         app.setBankName newApp.getAppName());
          app.setContacts newApp.getContacts());
 
             repo.save app);
-            throw new BankUpdated app.getAppCode(), app.getBankName());
+            throw new BankUpdated app.getAppCode(), app.getAppName());
     }
 
     */
