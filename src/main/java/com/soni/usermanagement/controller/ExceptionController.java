@@ -2,6 +2,7 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
+import com.soni.usermanagement.exception.error.AppAlreadyExists;
 import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.BankAlreadyExists;
 import com.soni.usermanagement.exception.error.BankNotFound;
@@ -56,7 +57,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler({BankAlreadyExists.class, EmailAlreadyExists.class, FileAlreadyExists.class})
+    @ExceptionHandler({AppAlreadyExists.class, BankAlreadyExists.class, EmailAlreadyExists.class, FileAlreadyExists.class})
     public ResponseEntity<Object> emailAlreadyExistsHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(

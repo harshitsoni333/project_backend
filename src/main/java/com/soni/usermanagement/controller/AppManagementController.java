@@ -5,27 +5,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.validation.Valid;
-
+import com.soni.usermanagement.exception.error.AppAlreadyExists;
 import com.soni.usermanagement.exception.error.AppNotFound;
-import com.soni.usermanagement.exception.error.BankAlreadyExists;
-import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoAppsFound;
-import com.soni.usermanagement.exception.success.BankDeleted;
-import com.soni.usermanagement.exception.success.BankUpdated;
-import com.soni.usermanagement.exception.success.NewBankAdded;
+import com.soni.usermanagement.exception.success.NewAppAdded;
 import com.soni.usermanagement.model.AppManagement;
-import com.soni.usermanagement.model.BankManagement;
 import com.soni.usermanagement.repository.AppManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -68,12 +60,12 @@ public class AppManagementController {
         if(app == null) throw new AppNotFound(appCode);
         else return app;
     }
-/*
-    @PostMapping("/banks")
-    public void addBank(@RequestBody BankManagement newBank) {
+
+    @PostMapping(" apps")
+    public void addBank(@RequestBody AppManagement newApp) {
 
         // checking for invalid e-mails
-        List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
+        List<String> contacts = Arrays.asList(newApp.getContacts().split(";[ ]*"));
         for(String contact: contacts) {
             if(!emailValidator(contact)) {
                 // e-mail is not valid
@@ -82,45 +74,46 @@ public class AppManagementController {
         }
 
         // checking if entry already exists
-        String bankCode = newBank.getBankCode();
-        List<BankManagement> banks = repo.findAll();
-        for(BankManagement bank: banks) {
-            if(bank.getBankCode().equals(bankCode)) {
-                throw new BankAlreadyExists(bank.getBankCode(), bank.getBankName());
+        String appCode = newApp.getAppCode();
+        List<AppManagement> apps = repo.findAll();
+        for(AppManagement app: apps) {
+            if(app.getAppCode().equals(appCode)) {
+                throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
             }
         }
 
-        repo.save(newBank);
-        throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
+        repo.save(newApp);
+        throw new NewAppAdded(newApp.getAppCode(), newApp.getAppName());
     }
 
-    @DeleteMapping("/banks/{bankCode}")
-    public void deleteBank(@PathVariable("bankCode") String bankCode) {
-        BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
-        if(bank == null) throw new BankNotFound(bankCode);
-        repo.deleteById(bank.getId());
-        throw new BankDeleted(bank.getBankCode(), bank.getBankName());
+    /*
+    @DeleteMapping(" apps/{appCode}")
+    public void deleteBank(@PathVariable("appCode") String appCode) {
+        AppManagement app = repo.findByBankCode(appCode).orElse(null);
+        if app == null) throw new BankNotFound(appCode);
+        repo.deleteById app.getId());
+        throw new BankDeleted app.getAppCode(), app.getBankName());
     }
 
-    @PutMapping("/banks/{bankCode}")
-    public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
-        BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+    @PutMapping(" apps/{appCode}")
+    public void updateBank(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
+        AppManagement app = repo.findByBankCode(appCode).orElse(null);
 
-            if(bank == null) {
-                throw new BankNotFound(bankCode);
+            if app == null) {
+                throw new BankNotFound(appCode);
             }
 
             // checking for duplicate entry
-            List<BankManagement> banks = repo.findAll();
-            for(BankManagement obj: banks) {
-                if(obj.getBankCode().equals(bank.getBankCode())) continue;
-                else if(obj.getBankCode().equals(newBank.getBankCode())) {
-                        throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
+            List<AppManagement> apps = repo.findAll();
+            for(AppManagement obj: apps) {
+                if(obj.getAppCode().equals app.getAppCode())) continue;
+                else if(obj.getAppCode().equals newApp.getAppCode())) {
+                        throw new BankAlreadyExists(obj.getAppCode(), obj.getBankName());
                 }
             }
 
             // checking for invalid emails
-            List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
+            List<String> emails = Arrays.asList newApp.getContacts().split(";[ ]*"));
             for(String email: emails) {
                 // if email not valid
                 if (!emailValidator(email)) {
@@ -128,12 +121,12 @@ public class AppManagementController {
                 }
             }
 
-            bank.setBankCode(newBank.getBankCode());
-            bank.setBankName(newBank.getBankName());
-            bank.setContacts(newBank.getContacts());
+         app.setBankCode newApp.getAppCode());
+         app.setBankName newApp.getBankName());
+         app.setContacts newApp.getContacts());
 
-            repo.save(bank);
-            throw new BankUpdated(bank.getBankCode(), bank.getBankName());
+            repo.save app);
+            throw new BankUpdated app.getAppCode(), app.getBankName());
     }
 
     */
