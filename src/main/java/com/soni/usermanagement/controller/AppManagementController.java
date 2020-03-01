@@ -106,33 +106,33 @@ public class AppManagementController {
     public void updateApp(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
         AppManagement app = repo.findByAppCode(appCode).orElse(null);
 
-            if(app == null)
-                throw new AppNotFound(appCode);
+        if(app == null)
+            throw new AppNotFound(appCode);
 
-            // checking for duplicate entry
-            List<AppManagement> apps = repo.findAll();
-            for(AppManagement obj: apps) {
-                if(obj.getAppCode().equals(app.getAppCode())) continue;
-                else if(obj.getAppCode().equals(newApp.getAppCode())) {
-                        throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
-                }
+        // checking for duplicate entry
+        List<AppManagement> apps = repo.findAll();
+        for(AppManagement obj: apps) {
+            if(obj.getAppCode().equals(app.getAppCode())) continue;
+            else if(obj.getAppCode().equals(newApp.getAppCode())) {
+                    throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
             }
+        }
 
-            // checking for invalid emails
-            List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
-            if(!newApp.getContacts().equals(""))
-            for(String email: emails) {
-                // if email not valid
-                if (!emailValidator(email)) {
-                    throw new EmailNotValidException(email);
-                }
+        // checking for invalid emails
+        List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
+        if(!newApp.getContacts().equals(""))
+        for(String email: emails) {
+            // if email not valid
+            if (!emailValidator(email)) {
+                throw new EmailNotValidException(email);
             }
+        }
 
-         app.setAppCode(newApp.getAppCode());
-         app.setAppName(newApp.getAppName());
-         app.setContacts(newApp.getContacts());
+        app.setAppCode(newApp.getAppCode());
+        app.setAppName(newApp.getAppName());
+        app.setContacts(newApp.getContacts());
 
-            repo.save(app);
-            throw new AppUpdated(app.getAppCode(), app.getAppName());
+        repo.save(app);
+        throw new AppUpdated(app.getAppCode(), app.getAppName());
     }
 }
