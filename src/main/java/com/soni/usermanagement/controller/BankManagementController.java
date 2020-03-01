@@ -2,15 +2,21 @@ package com.soni.usermanagement.controller;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 import java.util.List;
 
 import com.soni.usermanagement.repository.BankManagementRepo;
+import com.soni.usermanagement.exception.error.BankAlreadyExists;
+import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoBanksFound;
+import com.soni.usermanagement.exception.success.NewBankAdded;
 import com.soni.usermanagement.model.BankManagement;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -44,6 +50,31 @@ public class BankManagementController {
         List<BankManagement> banks = repo.findAll();
         if(banks.isEmpty()) throw new NoBanksFound();
         else return banks;
+    }
+
+    @PostMapping("/banks")
+    public void addBank(@RequestBody BankManagement newBank) {
+
+        // checking for invalid e-mails
+        List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
+        for(String contact: contacts) {
+            if(!emailValidator(contact)) {
+                // e-mail is not valid
+                throw new EmailNotValidException(contact);
+            }
+        }
+
+        // checking if entry already exists
+        String bankCode = newBank.getBankCode();
+        List<BankManagement> banks = repo.findAll();
+        for(BankManagement bank: banks) {
+            if(bank.getBankCode().equals(bankCode)) {
+                throw new BankAlreadyExists(bank.getBankCode(), bank.getBankName());
+            }
+        }
+
+        repo.save(newBank);
+        throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
     }
 
 }
