@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.Valid;
+
 import com.soni.usermanagement.exception.error.AppAlreadyExists;
 import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.NoAppsFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
+import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.NewAppAdded;
 import com.soni.usermanagement.model.AppManagement;
 import com.soni.usermanagement.repository.AppManagementRepo;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -64,10 +68,12 @@ public class AppManagementController {
     }
 
     @PostMapping("/apps")
-    public void addBank(@RequestBody AppManagement newApp) {
+    public void addApp(@RequestBody AppManagement newApp) {
 
         // checking for invalid e-mails
+
         List<String> contacts = Arrays.asList(newApp.getContacts().split(";[ ]*"));
+        if(!newApp.getContacts().equals(""))
         for(String contact: contacts) {
             if(!emailValidator(contact)) {
                 // e-mail is not valid
@@ -88,32 +94,33 @@ public class AppManagementController {
         throw new NewAppAdded(newApp.getAppCode(), newApp.getAppName());
     }
 
-    @DeleteMapping(" apps/{appCode}")
-    public void deleteBank(@PathVariable("appCode") String appCode) {
+    @DeleteMapping("/apps/{appCode}")
+    public void deleteApp(@PathVariable("appCode") String appCode) {
         AppManagement app = repo.findByAppCode(appCode).orElse(null);
         if(app == null) throw new AppNotFound(appCode);
         repo.deleteById(app.getId());
         throw new AppDeleted(app.getAppCode(), app.getAppName());
     }
-/*
-    @PutMapping(" apps/{appCode}")
-    public void updateBank(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
+
+    @PutMapping("/apps/{appCode}")
+    public void updateApp(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
         AppManagement app = repo.findByAppCode(appCode).orElse(null);
 
-            if app == null) {
-                throw new AppNotFound(appCode);(            }
+            if(app == null)
+                throw new AppNotFound(appCode);
 
             // checking for duplicate entry
             List<AppManagement> apps = repo.findAll();
             for(AppManagement obj: apps) {
-                if(obj.getAppCode().equals app.getAppCode())) continue;
-                else if(obj.getAppCode().equals newApp.getAppCode())) {
-                        throw new BankAlreadyExists(obj.getAppCode(), obj.getAppName());
+                if(obj.getAppCode().equals(app.getAppCode())) continue;
+                else if(obj.getAppCode().equals(newApp.getAppCode())) {
+                        throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
                 }
             }
 
             // checking for invalid emails
-            List<String> emails = Arrays.asList newApp.getContacts().split(";[ ]*"));
+            List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
+            if(!newApp.getContacts().equals(""))
             for(String email: emails) {
                 // if email not valid
                 if (!emailValidator(email)) {
@@ -121,13 +128,11 @@ public class AppManagementController {
                 }
             }
 
-         app.setBankCode newApp.getAppCode());
-         app.setBankName newApp.getAppName());
-         app.setContacts newApp.getContacts());
+         app.setAppCode(newApp.getAppCode());
+         app.setAppName(newApp.getAppName());
+         app.setContacts(newApp.getContacts());
 
-            repo.save app);
-            throw new BankUpdated app.getAppCode(), app.getAppName());
+            repo.save(app);
+            throw new AppUpdated(app.getAppCode(), app.getAppName());
     }
-
-    */
 }
