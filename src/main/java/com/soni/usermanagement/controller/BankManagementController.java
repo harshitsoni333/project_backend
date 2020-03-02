@@ -87,12 +87,8 @@ public class BankManagementController {
 
             // checking for invalid emails
             List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
-            for(String email: emails) {
-                // if email not valid
-                if (!EmailValidation.emailValidator(email)) {
-                    throw new EmailNotValidException(email);
-                }
-            }
+            for(String email: emails)
+            if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
 
             bank.setBankCode(newBank.getBankCode());
             bank.setBankName(newBank.getBankName());
