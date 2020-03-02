@@ -2,8 +2,6 @@ package com.soni.usermanagement.controller;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
@@ -36,8 +34,7 @@ public class AppManagementController {
 
     @GetMapping("/apps")
     public List<AppManagement> getAllApps() {
-        List<AppManagement> apps = repo.findAll();
-        return apps;
+        return repo.findAll();
     }
 
     @GetMapping("/apps/{appCode}")

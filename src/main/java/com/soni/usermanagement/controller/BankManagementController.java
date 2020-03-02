@@ -1,8 +1,5 @@
 package com.soni.usermanagement.controller;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javax.validation.Valid;
 
 import java.util.Arrays;
@@ -16,6 +13,7 @@ import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.BankUpdated;
 import com.soni.usermanagement.exception.success.NewBankAdded;
 import com.soni.usermanagement.model.BankManagement;
+import com.soni.usermanagement.model.EmailValidation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,32 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "http://localhost:4200")
 public class BankManagementController {
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // E-Mail Validation function
-    private static final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
-    public static boolean emailValidator(String email) {
-
-        if (email == null) {
-            return false;
-        }
-
-        Matcher matcher = EMAIL_PATTERN.matcher(email);
-        return matcher.matches();
-    }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @Autowired
     private BankManagementRepo repo;
 
     @GetMapping("/banks")
     public List<BankManagement> getAllBanks() {
-        List<BankManagement> banks = repo.findAll();
-        return banks;
+        return repo.findAll();
     }
 
     @GetMapping("/banks/{bankCode}")
@@ -72,7 +50,7 @@ public class BankManagementController {
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
         for(String contact: contacts) {
-            if(!emailValidator(contact)) {
+            if(!EmailValidation.emailValidator(contact)) {
                 // e-mail is not valid
                 throw new EmailNotValidException(contact);
             }
@@ -111,7 +89,7 @@ public class BankManagementController {
             List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
             for(String email: emails) {
                 // if email not valid
-                if (!emailValidator(email)) {
+                if (!EmailValidation.emailValidator(email)) {
                     throw new EmailNotValidException(email);
                 }
             }
@@ -123,4 +101,5 @@ public class BankManagementController {
             repo.save(bank);
             throw new BankUpdated(bank.getBankCode(), bank.getBankName());
     }
+
 }

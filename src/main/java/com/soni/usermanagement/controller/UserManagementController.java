@@ -1,18 +1,16 @@
 package com.soni.usermanagement.controller;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EmailAlreadyExists;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.NoUsersFoundException;
+import com.soni.usermanagement.exception.error.UserAlreadyExists;
 import com.soni.usermanagement.exception.error.UserNotFoundException;
 import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
+import com.soni.usermanagement.model.EmailValidation;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserManagementRepo;
 
@@ -33,108 +31,61 @@ public class UserManagementController {
     @Autowired
     private UserManagementRepo repo;
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // E-Mail Validation function
-    private static final String EMAIL_REGEX = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";
-
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
-
-    public static boolean emailValidator(String email) {
-
-        if (email == null) {
-            return false;
-        }
-
-        Matcher matcher = EMAIL_PATTERN.matcher(email);
-        return matcher.matches();
-    }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     @GetMapping("/users")
     public List<UserManagement> getAllUsers() {
-
-        List<UserManagement> users = repo.findAll();
-        if(users.isEmpty()) {
-            throw new NoUsersFoundException();
-        }
-        else return users;
+        return repo.findAll();
     }
 
-    @PostMapping(path = "/user", consumes = "application/json")
-    public void addUser(@RequestBody UserManagement user) {
+    @PostMapping(path = "/users", consumes = "application/json")
+    public void addUser(@RequestBody UserManagement newUser) {
 
-        String email = user.getEmail();
+        String email = newUser.getEmail();
 
-        if (emailValidator(email)) {
-            // email is valid
+        // checking if email valid
+        if(!EmailValidation.emailValidator(email))
+        throw new EmailNotValidException(email);
 
-            List<UserManagement> users = repo.findAll();
-            for(UserManagement obj: users) {
-                if(obj.getEmail().equals(email)) throw new EmailAlreadyExists(email);
-            }
+        // checking for duplicate entry
+        if(repo.findByEmail(email).orElse(null) != null)
+        throw new UserAlreadyExists(email);
 
-            repo.save(user);
-            throw new NewUserAdded(email);
-		}
-		else {
-            //email is not valid
-            throw new EmailNotValidException(email);
-		}
+        repo.save(newUser);
+        throw new NewUserAdded(email);
     }
 
-    @PutMapping(path="/user/{email}", consumes = "application/json")
+    @PutMapping(path="/users/{email}", consumes = "application/json")
     public void updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
+        // get the existing user
         UserManagement user = repo.findByEmail(email).orElse(null);
-        String newEmail = newUser.getEmail();
+        if(user == null) throw new UserNotFoundException(email);
 
-        if(user == null) {
-            throw new UserNotFoundException(email);
-        }
+        //checking for duplicate entry
+        UserManagement obj = repo.findByEmail(newUser.getEmail()).orElse(null);
+        if(obj != null && !obj.getEmail().equals(user.getEmail()))
+        throw new UserAlreadyExists(obj.getEmail());
 
-        if (emailValidator(newEmail)) {
-            // email is valid
-            List<UserManagement> users = repo.findAll();
-            for(UserManagement obj: users) {
-                if(obj.getEmail().equals(user.getEmail()))  continue;
-                else {
-                    if(obj.getEmail().equals(newEmail)) throw new EmailAlreadyExists(newEmail);
-                }
-            }
-
-            user.setEmail(newUser.getEmail());
-            user.setFirstname(newUser.getFirstname());
-            user.setLastname(newUser.getLastname());
-            user.setProfile(newUser.getProfile());
-            repo.save(user);
-            throw new UserUpdated(newEmail);
-		}
-		else {
-            //email is not valid
-            throw new EmailNotValidException(newUser.getEmail());
-        }
+        user.setEmail(newUser.getEmail());
+        user.setFirstname(newUser.getFirstname());
+        user.setLastname(newUser.getLastname());
+        user.setProfile(newUser.getProfile());
+        repo.save(user);
+        throw new UserUpdated(newUser.getEmail());
     }
 
-    @GetMapping("/user/{email}")
+    @GetMapping("/users/{email}")
     public UserManagement getUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
-        if(user == null) {
-            throw new UserNotFoundException(email);
-        }
+        if(user == null) throw new UserNotFoundException(email);
         return user;
     }
 
-    @DeleteMapping("/user/{email}")
+    @DeleteMapping("/newUser/{email}")
     public UserManagement deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
-        if(user == null) {
-            throw new UserNotFoundException(email);
-        }
+        if(user == null) throw new UserNotFoundException(email);
         repo.deleteById(user.getId());
         throw new UserDeleted(email);
     }
