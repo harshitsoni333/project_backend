@@ -82,12 +82,15 @@ public class AppManagementController {
 
         // checking if entry already exists
         String appCode = newApp.getAppCode();
-        List<AppManagement> apps = repo.findAll();
-        for(AppManagement app: apps) {
-            if(app.getAppCode().equals(appCode)) {
-                throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
-            }
-        }
+        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+        if(app != null) throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
+
+        // List<AppManagement> apps = repo.findAll();
+        // for(AppManagement app: apps) {
+        //     if(app.getAppCode().equals(appCode)) {
+        //         throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
+        //     }
+        // }
 
         repo.save(newApp);
         throw new NewAppAdded(newApp.getAppCode(), newApp.getAppName());
@@ -109,13 +112,17 @@ public class AppManagementController {
             throw new AppNotFound(appCode);
 
         // checking for duplicate entry
-        List<AppManagement> apps = repo.findAll();
-        for(AppManagement obj: apps) {
-            if(obj.getAppCode().equals(app.getAppCode())) continue;
-            else if(obj.getAppCode().equals(newApp.getAppCode())) {
-                    throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
-            }
-        }
+        AppManagement obj = repo.findByAppCode(newApp.getAppCode()).orElse(null);
+        if(obj != null && !obj.getAppCode().equals(app.getAppCode()))
+        throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
+        
+        // List<AppManagement> apps = repo.findAll();
+        // for(AppManagement obj: apps) {
+        //     if(obj.getAppCode().equals(app.getAppCode())) continue;
+        //     else if(obj.getAppCode().equals(newApp.getAppCode())) {
+        //             throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
+        //     }
+        // }
 
         // checking for invalid emails
         List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
