@@ -12,7 +12,6 @@ import com.soni.usermanagement.repository.BankManagementRepo;
 import com.soni.usermanagement.exception.error.BankAlreadyExists;
 import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.NoBanksFound;
 import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.BankUpdated;
 import com.soni.usermanagement.exception.success.NewBankAdded;
