@@ -57,8 +57,7 @@ public class BankManagementController {
     @GetMapping("/banks")
     public List<BankManagement> getAllBanks() {
         List<BankManagement> banks = repo.findAll();
-        if(banks.isEmpty()) throw new NoBanksFound();
-        else return banks;
+        return banks;
     }
 
     @GetMapping("/banks/{bankCode}")
@@ -81,13 +80,8 @@ public class BankManagementController {
         }
 
         // checking if entry already exists
-        String bankCode = newBank.getBankCode();
-        List<BankManagement> banks = repo.findAll();
-        for(BankManagement bank: banks) {
-            if(bank.getBankCode().equals(bankCode)) {
-                throw new BankAlreadyExists(bank.getBankCode(), bank.getBankName());
-            }
-        }
+        BankManagement bank = repo.findByBankCode(newBank.getBankCode()).orElse(null);
+        if(bank != null) throw new BankAlreadyExists(bank.getBankCode(), bank.getBankName());
 
         repo.save(newBank);
         throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
@@ -110,13 +104,9 @@ public class BankManagementController {
             }
 
             // checking for duplicate entry
-            List<BankManagement> banks = repo.findAll();
-            for(BankManagement obj: banks) {
-                if(obj.getBankCode().equals(bank.getBankCode())) continue;
-                else if(obj.getBankCode().equals(newBank.getBankCode())) {
-                        throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
-                }
-            }
+            BankManagement obj = repo.findByBankCode(newBank.getBankCode()).orElse(null);
+            if(obj != null && !obj.getBankCode().equals(bank.getBankCode()))
+            throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
 
             // checking for invalid emails
             List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));

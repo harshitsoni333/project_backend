@@ -79,8 +79,7 @@ public class AppManagementController {
         }
 
         // checking if entry already exists
-        String appCode = newApp.getAppCode();
-        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+        AppManagement app = repo.findByAppCode(newApp.getAppCode()).orElse(null);
         if(app != null) throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
 
         repo.save(newApp);
