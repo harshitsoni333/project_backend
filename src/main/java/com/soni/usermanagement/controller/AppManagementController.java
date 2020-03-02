@@ -10,7 +10,6 @@ import javax.validation.Valid;
 import com.soni.usermanagement.exception.error.AppAlreadyExists;
 import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.NoAppsFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.NewAppAdded;
@@ -56,8 +55,7 @@ public class AppManagementController {
     @GetMapping("/apps")
     public List<AppManagement> getAllApps() {
         List<AppManagement> apps = repo.findAll();
-        if(apps.isEmpty()) throw new NoAppsFound();
-        else return apps;
+        return apps;
     }
 
     @GetMapping("/apps/{appCode}")
@@ -85,13 +83,6 @@ public class AppManagementController {
         AppManagement app = repo.findByAppCode(appCode).orElse(null);
         if(app != null) throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
 
-        // List<AppManagement> apps = repo.findAll();
-        // for(AppManagement app: apps) {
-        //     if(app.getAppCode().equals(appCode)) {
-        //         throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
-        //     }
-        // }
-
         repo.save(newApp);
         throw new NewAppAdded(newApp.getAppCode(), newApp.getAppName());
     }
@@ -115,14 +106,6 @@ public class AppManagementController {
         AppManagement obj = repo.findByAppCode(newApp.getAppCode()).orElse(null);
         if(obj != null && !obj.getAppCode().equals(app.getAppCode()))
         throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
-        
-        // List<AppManagement> apps = repo.findAll();
-        // for(AppManagement obj: apps) {
-        //     if(obj.getAppCode().equals(app.getAppCode())) continue;
-        //     else if(obj.getAppCode().equals(newApp.getAppCode())) {
-        //             throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
-        //     }
-        // }
 
         // checking for invalid emails
         List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
