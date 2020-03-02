@@ -50,12 +50,8 @@ public class AppManagementController {
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newApp.getContacts().split(";[ ]*"));
         if(!newApp.getContacts().equals(""))
-        for(String contact: contacts) {
-            if(!EmailValidation.emailValidator(contact)) {
-                // e-mail is not valid
-                throw new EmailNotValidException(contact);
-            }
-        }
+        for(String contact: contacts)
+        if(!EmailValidation.emailValidator(contact)) throw new EmailNotValidException(contact);
 
         // checking if entry already exists
         AppManagement app = repo.findByAppCode(newApp.getAppCode()).orElse(null);
@@ -88,13 +84,9 @@ public class AppManagementController {
         // checking for invalid emails
         List<String> emails = Arrays.asList(newApp.getContacts().split(";[ ]*"));
         if(!newApp.getContacts().equals(""))
-        for(String email: emails) {
-            // if email not valid
-            if (!EmailValidation.emailValidator(email)) {
-                throw new EmailNotValidException(email);
-            }
-        }
-
+        for(String email: emails)
+        if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
+        
         app.setAppCode(newApp.getAppCode());
         app.setAppName(newApp.getAppName());
         app.setContacts(newApp.getContacts());
