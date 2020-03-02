@@ -71,7 +71,6 @@ public class AppManagementController {
     public void addApp(@RequestBody AppManagement newApp) {
 
         // checking for invalid e-mails
-
         List<String> contacts = Arrays.asList(newApp.getContacts().split(";[ ]*"));
         if(!newApp.getContacts().equals(""))
         for(String contact: contacts) {
