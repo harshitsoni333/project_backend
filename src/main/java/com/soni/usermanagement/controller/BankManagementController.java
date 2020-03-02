@@ -49,12 +49,8 @@ public class BankManagementController {
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
-        for(String contact: contacts) {
-            if(!EmailValidation.emailValidator(contact)) {
-                // e-mail is not valid
-                throw new EmailNotValidException(contact);
-            }
-        }
+        for(String contact: contacts)
+        if(!EmailValidation.emailValidator(contact)) throw new EmailNotValidException(contact);
 
         // checking if entry already exists
         BankManagement bank = repo.findByBankCode(newBank.getBankCode()).orElse(null);
@@ -74,28 +70,26 @@ public class BankManagementController {
 
     @PutMapping("/banks/{bankCode}")
     public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
+        
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
+        if(bank == null) throw new BankNotFound(bankCode);
 
-            if(bank == null) {
-                throw new BankNotFound(bankCode);
-            }
+        // checking for duplicate entry
+        BankManagement obj = repo.findByBankCode(newBank.getBankCode()).orElse(null);
+        if(obj != null && !obj.getBankCode().equals(bank.getBankCode()))
+        throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
 
-            // checking for duplicate entry
-            BankManagement obj = repo.findByBankCode(newBank.getBankCode()).orElse(null);
-            if(obj != null && !obj.getBankCode().equals(bank.getBankCode()))
-            throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
+        // checking for invalid emails
+        List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
+        for(String email: emails)
+        if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
 
-            // checking for invalid emails
-            List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));
-            for(String email: emails)
-            if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
+        bank.setBankCode(newBank.getBankCode());
+        bank.setBankName(newBank.getBankName());
+        bank.setContacts(newBank.getContacts());
 
-            bank.setBankCode(newBank.getBankCode());
-            bank.setBankName(newBank.getBankName());
-            bank.setContacts(newBank.getContacts());
-
-            repo.save(bank);
-            throw new BankUpdated(bank.getBankCode(), bank.getBankName());
+        repo.save(bank);
+        throw new BankUpdated(bank.getBankCode(), bank.getBankName());
     }
 
 }
