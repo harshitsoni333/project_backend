@@ -81,7 +81,7 @@ public class UserManagementController {
         return user;
     }
 
-    @DeleteMapping("/newUser/{email}")
+    @DeleteMapping("/users/{email}")
     public UserManagement deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
