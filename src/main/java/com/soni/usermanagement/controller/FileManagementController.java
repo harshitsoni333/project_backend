@@ -65,7 +65,7 @@ public class FileManagementController {
         throw new FileAlreadyExists(obj.getFileCode(), obj.getFileName());
 
         // checking for invalid emails
-        List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
+        List<String> emails = Arrays.asList(newFile.getContacts().split(";[ ]*"));
         for(String i: emails) 
         if(!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
