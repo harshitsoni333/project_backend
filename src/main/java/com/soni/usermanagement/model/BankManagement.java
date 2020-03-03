@@ -56,4 +56,8 @@ public class BankManagement {
         this.contacts = contacts;
     }
 
+    public BankManagement() {
+        this.contacts = "";
+    }
+
 }

@@ -32,19 +32,19 @@ public class BankManagementController {
     @Autowired
     private BankManagementRepo repo;
 
-    @GetMapping("/banks")
+    @GetMapping("/bank")
     public List<BankManagement> getAllBanks() {
         return repo.findAll();
     }
 
-    @GetMapping("/banks/{bankCode}")
+    @GetMapping("/bank/{bankCode}")
     public BankManagement getBank(@PathVariable("bankCode") String bankCode) {
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new BankNotFound(bankCode);
         else return bank;
     }
 
-    @PostMapping("/banks")
+    @PostMapping("/bank")
     public void addBank(@RequestBody BankManagement newBank) {
 
         // checking for invalid e-mails
@@ -60,7 +60,7 @@ public class BankManagementController {
         throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
     }
 
-    @DeleteMapping("/banks/{bankCode}")
+    @DeleteMapping("/bank/{bankCode}")
     public void deleteBank(@PathVariable("bankCode") String bankCode) {
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new BankNotFound(bankCode);
@@ -68,7 +68,7 @@ public class BankManagementController {
         throw new BankDeleted(bank.getBankCode(), bank.getBankName());
     }
 
-    @PutMapping("/banks/{bankCode}")
+    @PutMapping("/bank/{bankCode}")
     public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
         
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);

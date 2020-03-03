@@ -31,12 +31,12 @@ public class UserManagementController {
     @Autowired
     private UserManagementRepo repo;
 
-    @GetMapping("/users")
+    @GetMapping("/user")
     public List<UserManagement> getAllUsers() {
         return repo.findAll();
     }
 
-    @PostMapping(path = "/users", consumes = "application/json")
+    @PostMapping(path = "/user", consumes = "application/json")
     public void addUser(@RequestBody UserManagement newUser) {
 
         String email = newUser.getEmail();
@@ -53,7 +53,7 @@ public class UserManagementController {
         throw new NewUserAdded(email);
     }
 
-    @PutMapping(path="/users/{email}", consumes = "application/json")
+    @PutMapping(path="/user/{email}", consumes = "application/json")
     public void updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
         // get the existing user
@@ -66,14 +66,14 @@ public class UserManagementController {
         throw new UserAlreadyExists(obj.getEmail());
 
         user.setEmail(newUser.getEmail());
-        user.setFirstname(newUser.getFirstname());
-        user.setLastname(newUser.getLastname());
+        user.setFirstName(newUser.getFirstName());
+        user.setLastName(newUser.getLastName());
         user.setProfile(newUser.getProfile());
         repo.save(user);
         throw new UserUpdated(newUser.getEmail());
     }
 
-    @GetMapping("/users/{email}")
+    @GetMapping("/user/{email}")
     public UserManagement getUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
@@ -81,7 +81,7 @@ public class UserManagementController {
         return user;
     }
 
-    @DeleteMapping("/users/{email}")
+    @DeleteMapping("/user/{email}")
     public UserManagement deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);

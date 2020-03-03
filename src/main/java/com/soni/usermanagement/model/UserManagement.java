@@ -16,10 +16,10 @@ public class UserManagement {
     private Integer id;
 
     @Column(name="firstname")
-    private String firstname;
+    private String firstName;
 
     @Column(name="lastname")
-    private String lastname;
+    private String lastName;
 
     @Column(name="email")
     private String email;
@@ -35,20 +35,20 @@ public class UserManagement {
         this.id = id;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
@@ -66,6 +66,5 @@ public class UserManagement {
     public void setProfile(String profile) {
         this.profile = profile;
     }
-
 
 }

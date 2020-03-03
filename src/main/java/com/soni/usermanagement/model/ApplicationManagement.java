@@ -24,6 +24,10 @@ public class ApplicationManagement {
     @Column(name = "contacts")
     private String contacts;
 
+    public ApplicationManagement() {
+        this.contacts = "";
+    }
+    
     public Integer getId() {
         return id;
     }
@@ -55,4 +59,5 @@ public class ApplicationManagement {
     public void setContacts(String contacts) {
         this.contacts = contacts;
     }
+
 }
