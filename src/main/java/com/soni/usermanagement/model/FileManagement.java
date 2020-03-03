@@ -1,5 +1,6 @@
 package com.soni.usermanagement.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,9 +15,16 @@ public class FileManagement {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    private String filecode;
-    private String filename;
+    @Column(name = "filecode")
+    private String fileCode;
+
+    @Column(name = "filename")
+    private String fileName;
+    
+    @Column(name = "description")
     private String description;
+    
+    @Column(name = "contacts")
     private String contacts;
 
     public Integer getId() {
@@ -27,20 +35,20 @@ public class FileManagement {
         this.id = id;
     }
 
-    public String getFilecode() {
-        return filecode;
+    public String getFileCode() {
+        return fileCode;
     }
 
-    public void setFilecode(String filecode) {
-        this.filecode = filecode;
+    public void setFileCode(String fileCode) {
+        this.fileCode = fileCode;
     }
 
-    public String getFilename() {
-        return filename;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getDescription() {
@@ -59,5 +67,4 @@ public class FileManagement {
         this.contacts = contacts;
     }
 
-    
 }   

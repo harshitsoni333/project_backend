@@ -32,12 +32,12 @@ public class FileManagementController {
     @Autowired
     private FileManagementRepo repo;
 
-    @GetMapping("/files")
+    @GetMapping("/file")
     public List<FileManagement> getAllFiles() {
         return repo.findAll();
     }
 
-    @PostMapping(path="/files", consumes = "application/json")
+    @PostMapping(path="/file", consumes = "application/json")
     public void addFile(@RequestBody FileManagement newFile) {
         
         // CHECKING for INVALID E-MAILS
@@ -46,52 +46,52 @@ public class FileManagementController {
         if (!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
         // CHECKING for duplicate entry
-        FileManagement file = repo.findByFilecode(newFile.getFilecode()).orElse(null);
-        if(file != null) throw new FileAlreadyExists(file.getFilecode(), file.getFilename());
+        FileManagement file = repo.findByFileCode(newFile.getFileCode()).orElse(null);
+        if(file != null) throw new FileAlreadyExists(file.getFileCode(), file.getFileCode());
 
         repo.save(newFile);
-        throw new NewFileAdded(newFile.getFilecode(), newFile.getFilename());
+        throw new NewFileAdded(newFile.getFileCode(), newFile.getFileName());
     }
 
-    @PutMapping(path = "/files/{filecode}", consumes = "application/json")
-    public void updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("filecode") String filecode) {
+    @PutMapping(path = "/file/{fileCode}", consumes = "application/json")
+    public void updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
         
-        FileManagement file = repo.findByFilecode(filecode).orElse(null);
-        if(file == null) throw new FileNotFound(filecode);
+        FileManagement file = repo.findByFileCode(fileCode).orElse(null);
+        if(file == null) throw new FileNotFound(fileCode);
 
         // checking for duplicate entry
-        FileManagement obj = repo.findByFilecode(newFile.getFilecode()).orElse(null);
-        if(obj != null && !obj.getFilecode().equals(file.getFilecode()))
-        throw new FileAlreadyExists(obj.getFilecode(), obj.getFilename());
+        FileManagement obj = repo.findByFileCode(newFile.getFileCode()).orElse(null);
+        if(obj != null && !obj.getFileCode().equals(file.getFileCode()))
+        throw new FileAlreadyExists(obj.getFileCode(), obj.getFileName());
 
         // checking for invalid emails
         List<String> emails = Arrays.asList(file.getContacts().split(";[ ]*"));
         for(String i: emails) 
         if(!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
-        file.setFilecode(newFile.getFilecode());
-        file.setFilename(newFile.getFilename());
+        file.setFileCode(newFile.getFileCode());
+        file.setFileName(newFile.getFileName());
         file.setDescription(newFile.getDescription());
         file.setContacts(newFile.getContacts());
 
         repo.save(file);
-        throw new FileUpdated(file.getFilecode(), file.getFilename());
+        throw new FileUpdated(file.getFileCode(), file.getFileName());
     }
 
-    @GetMapping("/files/{filecode}")
-    public FileManagement getFile(@PathVariable("filecode") String filecode) {
+    @GetMapping("/file/{fileCode}")
+    public FileManagement getFile(@PathVariable("fileCode") String fileCode) {
 
-        FileManagement file = repo.findByFilecode(filecode).orElse(null);
-        if(file == null) throw new FileNotFound(filecode);
+        FileManagement file = repo.findByFileCode(fileCode).orElse(null);
+        if(file == null) throw new FileNotFound(fileCode);
         else return file;
     }
 
-    @DeleteMapping("/files/{filecode}")
-    public void deleteFile(@PathVariable("filecode") String filecode) {
+    @DeleteMapping("/file/{fileCode}")
+    public void deleteFile(@PathVariable("fileCode") String fileCode) {
 
-        FileManagement file = repo.findByFilecode(filecode).orElse(null);
-        if(file == null) throw new FileNotFound(filecode);
+        FileManagement file = repo.findByFileCode(fileCode).orElse(null);
+        if(file == null) throw new FileNotFound(fileCode);
         repo.deleteById(file.getId());
-        throw new FileDeleted(file.getFilecode(), file.getFilename());
+        throw new FileDeleted(file.getFileCode(), file.getFileName());
     }
 }

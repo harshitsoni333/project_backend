@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface FileManagementRepo extends JpaRepository<FileManagement, Integer> {
     
     //user-defined methods
-    Optional<FileManagement> findByFilecode(String filecode);
+    Optional<FileManagement> findByFileCode(String fileCode);
 }
