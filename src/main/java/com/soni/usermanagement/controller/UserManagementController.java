@@ -60,6 +60,10 @@ public class UserManagementController {
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) throw new UserNotFoundException(email);
 
+        // checking for invalid email
+        if(!EmailValidation.emailValidator(newUser.getEmail()))
+        throw new EmailNotValidException(newUser.getEmail());
+
         //checking for duplicate entry
         UserManagement obj = repo.findByEmail(newUser.getEmail()).orElse(null);
         if(obj != null && !obj.getEmail().equals(user.getEmail()))
