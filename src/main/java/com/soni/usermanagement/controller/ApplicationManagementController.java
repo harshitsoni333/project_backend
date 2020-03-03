@@ -11,9 +11,9 @@ import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.NewAppAdded;
-import com.soni.usermanagement.model.AppManagement;
+import com.soni.usermanagement.model.ApplicationManagement;
 import com.soni.usermanagement.model.EmailValidation;
-import com.soni.usermanagement.repository.AppManagementRepo;
+import com.soni.usermanagement.repository.ApplicationManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,25 +27,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-public class AppManagementController {
+public class ApplicationManagementController {
 
     @Autowired
-    private AppManagementRepo repo;
+    private ApplicationManagementRepo repo;
 
-    @GetMapping("/apps")
-    public List<AppManagement> getAllApps() {
+    @GetMapping("/app")
+    public List<ApplicationManagement> getAllApplications() {
         return repo.findAll();
     }
 
-    @GetMapping("/apps/{appCode}")
-    public AppManagement getApp(@PathVariable("appCode") String appCode) {
-        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+    @GetMapping("/app/{appCode}")
+    public ApplicationManagement getApp(@PathVariable("appCode") String appCode) {
+        ApplicationManagement app = repo.findByAppCode(appCode).orElse(null);
         if(app == null) throw new AppNotFound(appCode);
         else return app;
     }
 
     @PostMapping("/apps")
-    public void addApp(@RequestBody AppManagement newApp) {
+    public void addApp(@RequestBody ApplicationManagement newApp) {
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newApp.getContacts().split(";[ ]*"));
@@ -54,7 +54,7 @@ public class AppManagementController {
         if(!EmailValidation.emailValidator(contact)) throw new EmailNotValidException(contact);
 
         // checking if entry already exists
-        AppManagement app = repo.findByAppCode(newApp.getAppCode()).orElse(null);
+        ApplicationManagement app = repo.findByAppCode(newApp.getAppCode()).orElse(null);
         if(app != null) throw new AppAlreadyExists(app.getAppCode(), app.getAppName());
 
         repo.save(newApp);
@@ -63,21 +63,21 @@ public class AppManagementController {
 
     @DeleteMapping("/apps/{appCode}")
     public void deleteApp(@PathVariable("appCode") String appCode) {
-        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+        ApplicationManagement app = repo.findByAppCode(appCode).orElse(null);
         if(app == null) throw new AppNotFound(appCode);
         repo.deleteById(app.getId());
         throw new AppDeleted(app.getAppCode(), app.getAppName());
     }
 
     @PutMapping("/apps/{appCode}")
-    public void updateApp(@Valid @RequestBody AppManagement newApp, @PathVariable("appCode") String appCode) {
-        AppManagement app = repo.findByAppCode(appCode).orElse(null);
+    public void updateApp(@Valid @RequestBody ApplicationManagement newApp, @PathVariable("appCode") String appCode) {
+        ApplicationManagement app = repo.findByAppCode(appCode).orElse(null);
 
         if(app == null)
             throw new AppNotFound(appCode);
 
         // checking for duplicate entry
-        AppManagement obj = repo.findByAppCode(newApp.getAppCode()).orElse(null);
+        ApplicationManagement obj = repo.findByAppCode(newApp.getAppCode()).orElse(null);
         if(obj != null && !obj.getAppCode().equals(app.getAppCode()))
         throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
 
