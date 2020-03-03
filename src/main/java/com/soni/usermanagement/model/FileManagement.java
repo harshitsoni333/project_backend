@@ -67,4 +67,8 @@ public class FileManagement {
         this.contacts = contacts;
     }
 
+    public FileManagement() {
+        this.contacts = "";
+    }
+
 }   
