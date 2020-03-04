@@ -6,8 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.soni.usermanagement.repository.BankManagementRepo;
-import com.soni.usermanagement.exception.error.BankAlreadyExists;
-import com.soni.usermanagement.exception.error.BankNotFound;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.BankUpdated;
@@ -40,7 +40,7 @@ public class BankManagementController {
     @GetMapping("/bank/{bankCode}")
     public BankManagement getBank(@PathVariable("bankCode") String bankCode) {
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
-        if(bank == null) throw new BankNotFound(bankCode);
+        if(bank == null) throw new EntryNotFound(bankCode);
         else return bank;
     }
 
@@ -54,7 +54,7 @@ public class BankManagementController {
 
         // checking if entry already exists
         BankManagement bank = repo.findByBankCode(newBank.getBankCode()).orElse(null);
-        if(bank != null) throw new BankAlreadyExists(bank.getBankCode(), bank.getBankName());
+        if(bank != null) throw new EntryAlreadyExists(bank.getBankCode(), bank.getBankName());
 
         repo.save(newBank);
         throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
@@ -63,7 +63,7 @@ public class BankManagementController {
     @DeleteMapping("/bank/{bankCode}")
     public void deleteBank(@PathVariable("bankCode") String bankCode) {
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
-        if(bank == null) throw new BankNotFound(bankCode);
+        if(bank == null) throw new EntryNotFound(bankCode);
         repo.deleteById(bank.getId());
         throw new BankDeleted(bank.getBankCode(), bank.getBankName());
     }
@@ -72,12 +72,12 @@ public class BankManagementController {
     public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
         
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
-        if(bank == null) throw new BankNotFound(bankCode);
+        if(bank == null) throw new EntryNotFound(bankCode);
 
         // checking for duplicate entry
         BankManagement obj = repo.findByBankCode(newBank.getBankCode()).orElse(null);
         if(obj != null && !obj.getBankCode().equals(bank.getBankCode()))
-        throw new BankAlreadyExists(obj.getBankCode(), obj.getBankName());
+        throw new EntryAlreadyExists(obj.getBankCode(), obj.getBankName());
 
         // checking for invalid emails
         List<String> emails = Arrays.asList(newBank.getContacts().split(";[ ]*"));

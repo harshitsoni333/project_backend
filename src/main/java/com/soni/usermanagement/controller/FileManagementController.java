@@ -6,8 +6,8 @@ import java.util.Arrays;
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.FileAlreadyExists;
-import com.soni.usermanagement.exception.error.FileNotFound;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.FileDeleted;
 import com.soni.usermanagement.exception.success.FileUpdated;
 import com.soni.usermanagement.exception.success.NewFileAdded;
@@ -47,7 +47,7 @@ public class FileManagementController {
 
         // CHECKING for duplicate entry
         FileManagement file = repo.findByFileCode(newFile.getFileCode()).orElse(null);
-        if(file != null) throw new FileAlreadyExists(file.getFileCode(), file.getFileCode());
+        if(file != null) throw new EntryAlreadyExists(file.getFileCode(), file.getFileCode());
 
         repo.save(newFile);
         throw new NewFileAdded(newFile.getFileCode(), newFile.getFileName());
@@ -57,12 +57,12 @@ public class FileManagementController {
     public void updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
         
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
-        if(file == null) throw new FileNotFound(fileCode);
+        if(file == null) throw new EntryNotFound(fileCode);
 
         // checking for duplicate entry
         FileManagement obj = repo.findByFileCode(newFile.getFileCode()).orElse(null);
         if(obj != null && !obj.getFileCode().equals(file.getFileCode()))
-        throw new FileAlreadyExists(obj.getFileCode(), obj.getFileName());
+        throw new EntryAlreadyExists(obj.getFileCode(), obj.getFileName());
 
         // checking for invalid emails
         List<String> emails = Arrays.asList(newFile.getContacts().split(";[ ]*"));
@@ -82,7 +82,7 @@ public class FileManagementController {
     public FileManagement getFile(@PathVariable("fileCode") String fileCode) {
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
-        if(file == null) throw new FileNotFound(fileCode);
+        if(file == null) throw new EntryNotFound(fileCode);
         else return file;
     }
 
@@ -90,7 +90,7 @@ public class FileManagementController {
     public void deleteFile(@PathVariable("fileCode") String fileCode) {
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
-        if(file == null) throw new FileNotFound(fileCode);
+        if(file == null) throw new EntryNotFound(fileCode);
         repo.deleteById(file.getId());
         throw new FileDeleted(file.getFileCode(), file.getFileName());
     }

@@ -2,15 +2,9 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
-import com.soni.usermanagement.exception.error.AppAlreadyExists;
-import com.soni.usermanagement.exception.error.AppNotFound;
-import com.soni.usermanagement.exception.error.BankAlreadyExists;
-import com.soni.usermanagement.exception.error.BankNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.FileAlreadyExists;
-import com.soni.usermanagement.exception.error.FileNotFound;
-import com.soni.usermanagement.exception.error.UserAlreadyExists;
-import com.soni.usermanagement.exception.error.UserNotFoundException;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.BankDeleted;
@@ -36,7 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({AppNotFound.class, BankNotFound.class, UserNotFoundException.class, FileNotFound.class})
+    @ExceptionHandler(EntryNotFound.class)
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
@@ -56,7 +50,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler({AppAlreadyExists.class, BankAlreadyExists.class, UserAlreadyExists.class, FileAlreadyExists.class})
+    @ExceptionHandler(EntryAlreadyExists.class)
     public ResponseEntity<Object> emailAlreadyExistsHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(

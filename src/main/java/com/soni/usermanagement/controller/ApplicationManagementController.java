@@ -5,9 +5,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.AppAlreadyExists;
-import com.soni.usermanagement.exception.error.AppNotFound;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.NewAppAdded;
@@ -40,7 +40,7 @@ public class ApplicationManagementController {
     @GetMapping("/application/{appCode}")
     public ApplicationManagement getApplication(@PathVariable("appCode") String appCode) {
         ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
-        if(application == null) throw new AppNotFound(appCode);
+        if(application == null) throw new EntryNotFound(appCode);
         else return application;
     }
 
@@ -55,7 +55,7 @@ public class ApplicationManagementController {
 
         // checking if entry already exists
         ApplicationManagement application = repo.findByAppCode(newApplication.getAppCode()).orElse(null);
-        if(application != null) throw new AppAlreadyExists(application.getAppCode(), application.getAppName());
+        if(application != null) throw new EntryAlreadyExists(application.getAppCode(), application.getAppName());
 
         repo.save(newApplication);
         throw new NewAppAdded(newApplication.getAppCode(), newApplication.getAppName());
@@ -64,7 +64,7 @@ public class ApplicationManagementController {
     @DeleteMapping("/application/{appCode}")
     public void deleteApplication(@PathVariable("appCode") String appCode) {
         ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
-        if(application == null) throw new AppNotFound(appCode);
+        if(application == null) throw new EntryNotFound(appCode);
         repo.deleteById(application.getId());
         throw new AppDeleted(application.getAppCode(), application.getAppName());
     }
@@ -74,12 +74,12 @@ public class ApplicationManagementController {
         ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
 
         if(application == null)
-            throw new AppNotFound(appCode);
+            throw new EntryNotFound(appCode);
 
         // checking for duplicate entry
         ApplicationManagement obj = repo.findByAppCode(newApplication.getAppCode()).orElse(null);
         if(obj != null && !obj.getAppCode().equals(application.getAppCode()))
-        throw new AppAlreadyExists(obj.getAppCode(), obj.getAppName());
+        throw new EntryAlreadyExists(obj.getAppCode(), obj.getAppName());
 
         // checking for invalid contacts
         List<String> contacts = Arrays.asList(newApplication.getContacts().split(";[ ]*"));

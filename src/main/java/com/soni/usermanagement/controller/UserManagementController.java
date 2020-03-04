@@ -5,8 +5,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.UserAlreadyExists;
-import com.soni.usermanagement.exception.error.UserNotFoundException;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
@@ -46,8 +46,8 @@ public class UserManagementController {
         throw new EmailNotValidException(email);
 
         // checking for duplicate entry
-        if(repo.findByEmail(email).orElse(null) != null)
-        throw new UserAlreadyExists(email);
+        UserManagement user = repo.findByEmail(email).orElse(null);
+        if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
         repo.save(newUser);
         throw new NewUserAdded(email);
@@ -58,7 +58,7 @@ public class UserManagementController {
         
         // get the existing user
         UserManagement user = repo.findByEmail(email).orElse(null);
-        if(user == null) throw new UserNotFoundException(email);
+        if(user == null) throw new EntryNotFound(email);
 
         // checking for invalid email
         if(!EmailValidation.emailValidator(newUser.getEmail()))
@@ -67,7 +67,7 @@ public class UserManagementController {
         //checking for duplicate entry
         UserManagement obj = repo.findByEmail(newUser.getEmail()).orElse(null);
         if(obj != null && !obj.getEmail().equals(user.getEmail()))
-        throw new UserAlreadyExists(obj.getEmail());
+        throw new EntryAlreadyExists(obj.getFirstName(), obj.getEmail());
 
         user.setEmail(newUser.getEmail());
         user.setFirstName(newUser.getFirstName());
@@ -81,7 +81,7 @@ public class UserManagementController {
     public UserManagement getUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
-        if(user == null) throw new UserNotFoundException(email);
+        if(user == null) throw new EntryNotFound(email);
         return user;
     }
 
@@ -89,7 +89,7 @@ public class UserManagementController {
     public UserManagement deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
-        if(user == null) throw new UserNotFoundException(email);
+        if(user == null) throw new EntryNotFound(email);
         repo.deleteById(user.getId());
         throw new UserDeleted(email);
     }
