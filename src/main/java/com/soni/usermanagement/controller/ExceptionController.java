@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.EntryAlreadyExists;
 import com.soni.usermanagement.exception.error.EntryNotFound;
+import com.soni.usermanagement.exception.error.InvalidEntry;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.BankDeleted;
@@ -40,8 +41,8 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(EmailNotValidException.class)
-    public ResponseEntity<Object> emailNotValidHandler(Exception ex, WebRequest request) {
+    @ExceptionHandler({EmailNotValidException.class, InvalidEntry.class})
+    public ResponseEntity<Object> invalidEntryHandler(Exception ex, WebRequest request) {
 
         ErrorMessage errorMessage = new ErrorMessage(
             LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.toString(), ex.getMessage()
