@@ -10,7 +10,7 @@ import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
-import com.soni.usermanagement.model.EmailValidation;
+import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserManagementRepo;
 

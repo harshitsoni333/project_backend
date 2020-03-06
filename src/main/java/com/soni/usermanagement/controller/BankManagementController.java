@@ -12,8 +12,8 @@ import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.success.BankDeleted;
 import com.soni.usermanagement.exception.success.BankUpdated;
 import com.soni.usermanagement.exception.success.NewBankAdded;
+import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.BankManagement;
-import com.soni.usermanagement.model.EmailValidation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;

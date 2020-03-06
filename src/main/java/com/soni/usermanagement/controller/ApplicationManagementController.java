@@ -11,8 +11,8 @@ import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
 import com.soni.usermanagement.exception.success.NewAppAdded;
+import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ApplicationManagement;
-import com.soni.usermanagement.model.EmailValidation;
 import com.soni.usermanagement.repository.ApplicationManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;

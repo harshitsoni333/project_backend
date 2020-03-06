@@ -11,7 +11,7 @@ import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.FileDeleted;
 import com.soni.usermanagement.exception.success.FileUpdated;
 import com.soni.usermanagement.exception.success.NewFileAdded;
-import com.soni.usermanagement.model.EmailValidation;
+import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.FileManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
 

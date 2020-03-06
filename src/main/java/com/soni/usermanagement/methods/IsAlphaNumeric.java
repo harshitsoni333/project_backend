@@ -1,4 +1,4 @@
-package com.soni.usermanagement.model;
+package com.soni.usermanagement.methods;
 
 import java.util.regex.Pattern;
 
