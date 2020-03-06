@@ -5,11 +5,11 @@ import com.soni.usermanagement.model.FileTypeManagement;
 
 public class FileTypeValidator {
 
-    public static boolean validateFileType(FileTypeManagement fileType) {
+    public static boolean validateFileType(FileTypeManagement newFileType) {
 
         // checking constraints of fileTypeCode
         // should be alphanumeric
-        String fileTypeCode = fileType.getFileTypeCode();
+        String fileTypeCode = newFileType.getFileTypeCode();
         if(!IsAlphaNumeric.isAlphaNumeric(fileTypeCode))
         throw new InvalidEntry(fileTypeCode);
         // should have length <= 6
@@ -17,8 +17,8 @@ public class FileTypeValidator {
         throw new InvalidEntry(String.format("length of '%s' is more than 6 characters", fileTypeCode));
 
         // checking for invalid values of isBankFile and isKMT54
-        String isBankFile = fileType.getIsBankFile();
-        String isKMT54 = fileType.getIsKMT54();
+        String isBankFile = newFileType.getIsBankFile();
+        String isKMT54 = newFileType.getIsKMT54();
         if(!(isBankFile.equalsIgnoreCase("yes") || isBankFile.equalsIgnoreCase("no")))
         throw new InvalidEntry("isBankFile = " + isBankFile);
         if(!(isKMT54.equalsIgnoreCase("yes") || isKMT54.equalsIgnoreCase("no")))

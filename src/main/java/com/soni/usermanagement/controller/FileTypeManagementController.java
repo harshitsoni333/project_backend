@@ -68,7 +68,7 @@ public class FileTypeManagementController {
         return new ResponseEntity<>("file type deleted: " + fileTypeCode, HttpStatus.OK);
     }
 
-    @PutMapping("/fileTypes/{fileTypeCode")
+    @PutMapping("/fileTypes/{fileTypeCode}")
     public ResponseEntity<String> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, @PathVariable("fileTypeCode") String fileTypeCode) {
         
         // checking file type existence and deleting
@@ -79,7 +79,7 @@ public class FileTypeManagementController {
 
             // checking for duplicate entry
             FileTypeManagement obj = repo.findByFileTypeCode(newFileType.getFileTypeCode()).orElse(null);
-            if(obj != null && !obj.getFileTypeCode().equalsIgnoreCase(fileTypeCode))
+            if(obj != null && !obj.getFileTypeCode().equals(fileType.getFileTypeCode()))
             throw new EntryAlreadyExists(obj.getFileTypeCode(), obj.getDescription());
 
             // updating values
@@ -87,8 +87,9 @@ public class FileTypeManagementController {
             fileType.setDescription(newFileType.getDescription());
             fileType.setIsBankFile(newFileType.getIsBankFile());
             fileType.setIsKMT54(newFileType.getIsKMT54());
+            repo.save(fileType);
 
-            return new ResponseEntity<>("file type updated: " + fileTypeCode, HttpStatus.OK);
+            return new ResponseEntity<>("file type updated: " + fileType.getFileTypeCode(), HttpStatus.OK);
         }
         return new ResponseEntity<>("entry can't be updated: new entry not valid", HttpStatus.NOT_ACCEPTABLE);
     }
