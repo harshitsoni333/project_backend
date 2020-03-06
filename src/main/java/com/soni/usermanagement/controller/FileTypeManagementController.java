@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,8 +70,16 @@ public class FileTypeManagementController {
         return new ResponseEntity<>("File type added: " + fileTypeCode, HttpStatus.OK);
     }
 
-    // @DeleteMapping("/fileTypes/{fileTypeCode}")
-    // public ResponseEntity<String> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode) {}
+    @DeleteMapping("/fileTypes/{fileTypeCode}")
+    public ResponseEntity<String> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode) {
+        
+        // checking existense of fileType
+        FileTypeManagement fileType = repo.findByFileTypeCode(fileTypeCode).orElse(null);
+        if(fileType == null) throw new EntryNotFound(fileTypeCode);
+        else repo.deleteById(fileType.getId());
+
+        return new ResponseEntity<>("file type deleted: " + fileTypeCode, HttpStatus.OK);
+    }
 
     // @PutMapping("/fileTypes/{fileTypeCode")
     // public ResponseEntity<String> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, @PathVariable("fileTypeCode") String fileTypeCode) {}

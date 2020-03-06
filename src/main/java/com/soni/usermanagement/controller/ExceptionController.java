@@ -18,7 +18,7 @@ import com.soni.usermanagement.exception.success.NewFileAdded;
 import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
-import com.soni.usermanagement.model.ErrorMessage;
+import com.soni.usermanagement.model.ResponseMessage;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,41 +34,41 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntryNotFound.class)
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ResponseMessage responseMessage = new ResponseMessage(
             LocalDateTime.now(), HttpStatus.NOT_FOUND.toString(), ex.getMessage()
             );
         
-        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({EmailNotValidException.class, InvalidEntry.class})
     public ResponseEntity<Object> invalidEntryHandler(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ResponseMessage responseMessage = new ResponseMessage(
             LocalDateTime.now(), HttpStatus.NOT_ACCEPTABLE.toString(), ex.getMessage()
             );
         
-        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.NOT_ACCEPTABLE);
     }
 
     @ExceptionHandler(EntryAlreadyExists.class)
     public ResponseEntity<Object> emailAlreadyExistsHandler(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ResponseMessage responseMessage = new ResponseMessage(
             LocalDateTime.now(), HttpStatus.CONFLICT.toString(), ex.getMessage()
             );
         
-        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({AppUpdated.class, AppDeleted.class, NewAppAdded.class, BankUpdated.class, BankDeleted.class, NewBankAdded.class, NewUserAdded.class, UserUpdated.class, UserDeleted.class, FileDeleted.class, NewFileAdded.class, FileUpdated.class})
     public ResponseEntity<Object> newUserAddedHandler(Exception ex, WebRequest request) {
 
-        ErrorMessage errorMessage = new ErrorMessage(
+        ResponseMessage responseMessage = new ResponseMessage(
             LocalDateTime.now(), HttpStatus.OK.toString(), ex.getMessage()
             );
         
-        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.OK);
+        return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.OK);
     }
     
 }

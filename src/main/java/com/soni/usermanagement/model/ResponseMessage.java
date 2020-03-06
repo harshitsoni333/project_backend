@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class ErrorMessage {
+public class ResponseMessage {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private LocalDateTime timestamp;
     private String status;
     private String message;
 
-    public ErrorMessage(LocalDateTime timestamp, String status, String message) {
+    public ResponseMessage(LocalDateTime timestamp, String status, String message) {
         this.timestamp = timestamp;
         this.status = status;
         this.message = message;
