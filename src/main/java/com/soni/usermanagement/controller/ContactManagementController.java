@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
 import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
@@ -50,7 +51,11 @@ public class ContactManagementController {
         for(String i: emails) 
         if (!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
-        repo.save(newContact);
+        // cheking if entry already exists
+        ContactManagement contact = repo.findById(newContact.getId()).orElse(null);
+        if(contact != null) throw new EntryAlreadyExists(Integer.toString(contact.getId()), contact.getAppCode());
+        else repo.save(newContact);
+        
         return new ResponseEntity<>("Contact added: " + newContact.getId(), HttpStatus.OK);
     }
 
