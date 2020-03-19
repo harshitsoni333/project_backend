@@ -2,6 +2,7 @@ package com.soni.usermanagement.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,7 +18,9 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private MyUserDetailsService myUserDetailsService;
+
     @Autowired
+    @Lazy
     private JwtRequestFilter jwtRequestFilter;
 
     @Override
@@ -31,8 +34,13 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JwtTokenUtil jwtTokenUtil() {
+    public JwtTokenUtil jwtTokenUtilBean() {
         return new JwtTokenUtil();
+    }
+
+    @Bean
+    public JwtRequestFilter jwtRequestFilterBean() {
+        return new JwtRequestFilter();
     }
 
     @Override
@@ -50,7 +58,5 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
-
-
     
 }
