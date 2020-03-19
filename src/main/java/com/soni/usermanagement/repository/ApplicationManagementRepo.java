@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface ApplicationManagementRepo extends JpaRepository<ApplicationManagement, Integer> {
 
     // user-defined methods
-    Optional<ApplicationManagement> findByAppCode(String appCode);
+    Optional<ApplicationManagement> findByApplicationCode(String applicationCode);
 
 }

@@ -16,10 +16,10 @@ public class ApplicationManagement {
     private Integer id;
 
     @Column(name = "app_code")
-    private String appCode;
+    private String applicationCode;
 
     @Column(name = "app_name")
-    private String appName;
+    private String applicationName;
 
     @Column(name = "contacts")
     private String contacts;
@@ -27,7 +27,7 @@ public class ApplicationManagement {
     public ApplicationManagement() {
         this.contacts = "";
     }
-    
+
     public Integer getId() {
         return id;
     }
@@ -36,20 +36,20 @@ public class ApplicationManagement {
         this.id = id;
     }
 
-    public String getAppCode() {
-        return appCode;
+    public String getApplicationCode() {
+        return applicationCode;
     }
 
-    public void setAppCode(String appCode) {
-        this.appCode = appCode;
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
     }
 
-    public String getAppName() {
-        return appName;
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
     public String getContacts() {
@@ -59,5 +59,6 @@ public class ApplicationManagement {
     public void setContacts(String contacts) {
         this.contacts = contacts;
     }
+    
 
 }

@@ -32,19 +32,19 @@ public class ApplicationManagementController {
     @Autowired
     private ApplicationManagementRepo repo;
 
-    @GetMapping("/application")
+    @GetMapping("/applications")
     public List<ApplicationManagement> getAllApplications() {
         return repo.findAll();
     }
 
-    @GetMapping("/application/{appCode}")
-    public ApplicationManagement getApplication(@PathVariable("appCode") String appCode) {
-        ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
-        if(application == null) throw new EntryNotFound(appCode);
+    @GetMapping("/applications/{applicationCode}")
+    public ApplicationManagement getApplication(@PathVariable("applicationCode") String applicationCode) {
+        ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
+        if(application == null) throw new EntryNotFound(applicationCode);
         else return application;
     }
 
-    @PostMapping("/application")
+    @PostMapping("/applications")
     public void addApplication(@RequestBody ApplicationManagement newApplication) {
 
         // checking for invalid e-mails
@@ -54,32 +54,33 @@ public class ApplicationManagementController {
         if(!EmailValidation.emailValidator(contact)) throw new EmailNotValidException(contact);
 
         // checking if entry already exists
-        ApplicationManagement application = repo.findByAppCode(newApplication.getAppCode()).orElse(null);
-        if(application != null) throw new EntryAlreadyExists(application.getAppCode(), application.getAppName());
+        ApplicationManagement application = repo.findByApplicationCode(newApplication.getApplicationCode()).orElse(null);
+        if(application != null) 
+        throw new EntryAlreadyExists(application.getApplicationCode(), application.getApplicationName());
 
         repo.save(newApplication);
-        throw new NewAppAdded(newApplication.getAppCode(), newApplication.getAppName());
+        throw new NewAppAdded(newApplication.getApplicationCode(), newApplication.getApplicationName());
     }
 
-    @DeleteMapping("/application/{appCode}")
-    public void deleteApplication(@PathVariable("appCode") String appCode) {
-        ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
-        if(application == null) throw new EntryNotFound(appCode);
+    @DeleteMapping("/applications/{applicationCode}")
+    public void deleteApplication(@PathVariable("applicationCode") String applicationCode) {
+        ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
+        if(application == null) throw new EntryNotFound(applicationCode);
         repo.deleteById(application.getId());
-        throw new AppDeleted(application.getAppCode(), application.getAppName());
+        throw new AppDeleted(application.getApplicationCode(), application.getApplicationName());
     }
 
-    @PutMapping("/application/{appCode}")
-    public void updateApplication(@Valid @RequestBody ApplicationManagement newApplication, @PathVariable("appCode") String appCode) {
-        ApplicationManagement application = repo.findByAppCode(appCode).orElse(null);
+    @PutMapping("/applications/{applicationCode}")
+    public void updateApplication(@Valid @RequestBody ApplicationManagement newApplication, @PathVariable("applicationCode") String applicationCode) {
+        ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
 
         if(application == null)
-            throw new EntryNotFound(appCode);
+            throw new EntryNotFound(applicationCode);
 
         // checking for duplicate entry
-        ApplicationManagement obj = repo.findByAppCode(newApplication.getAppCode()).orElse(null);
-        if(obj != null && !obj.getAppCode().equals(application.getAppCode()))
-        throw new EntryAlreadyExists(obj.getAppCode(), obj.getAppName());
+        ApplicationManagement obj = repo.findByApplicationCode(newApplication.getApplicationCode()).orElse(null);
+        if(obj != null && !obj.getApplicationCode().equals(application.getApplicationCode()))
+        throw new EntryAlreadyExists(obj.getApplicationCode(), obj.getApplicationName());
 
         // checking for invalid contacts
         List<String> contacts = Arrays.asList(newApplication.getContacts().split(";[ ]*"));
@@ -87,11 +88,11 @@ public class ApplicationManagementController {
         for(String contact: contacts)
         if (!EmailValidation.emailValidator(contact)) throw new EmailNotValidException(contact);
         
-        application.setAppCode(newApplication.getAppCode());
-        application.setAppName(newApplication.getAppName());
+        application.setApplicationCode(newApplication.getApplicationCode());
+        application.setApplicationName(newApplication.getApplicationName());
         application.setContacts(newApplication.getContacts());
 
         repo.save(application);
-        throw new AppUpdated(application.getAppCode(), application.getAppName());
+        throw new AppUpdated(application.getApplicationCode(), application.getApplicationName());
     }
 }
