@@ -13,6 +13,7 @@ public class UserLogin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", updatable = false, nullable = false)
     private Integer id;
 
     @Column(name = "user_email")
@@ -28,6 +29,7 @@ public class UserLogin {
         this.password = password;
         this.profile = profile;
     }
+    
 
     public Integer getId() {
         return id;
@@ -58,6 +60,15 @@ public class UserLogin {
     }
 
     public void setProfile(String profile) {
+        this.profile = profile;
+    }
+
+    public UserLogin() {
+    }
+
+    public UserLogin(String userName, String password, String profile) {
+        this.userName = userName;
+        this.password = password;
         this.profile = profile;
     }
 

@@ -11,7 +11,9 @@ import com.soni.usermanagement.exception.success.NewUserAdded;
 import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
 import com.soni.usermanagement.methods.EmailValidation;
+import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
+import com.soni.usermanagement.repository.UserLoginRepo;
 import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,8 @@ public class UserManagementController {
 
     @Autowired
     private UserManagementRepo repo;
+    @Autowired
+    private UserLoginRepo loginRepo;
 
     @GetMapping("/user")
     public List<UserManagement> getAllUsers() {
@@ -50,6 +54,7 @@ public class UserManagementController {
         if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
         repo.save(newUser);
+        loginRepo.save(new UserLogin(newUser.getEmail(), "root", newUser.getProfile()));
         throw new NewUserAdded(email);
     }
 
