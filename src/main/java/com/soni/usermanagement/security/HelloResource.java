@@ -1,13 +1,10 @@
 package com.soni.usermanagement.security;
 
-import com.soni.usermanagement.methods.PasswordEncoder;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,8 +20,10 @@ public class HelloResource {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private MyUserDetailsService userDetailsService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    // @Autowired
+    // private AuthenticationManager authenticationManager;
+
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @RequestMapping("/hello")
     public String hello() { return "hello world"; }
@@ -32,18 +31,23 @@ public class HelloResource {
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) 
     throws Exception{
+
+        final UserDetails userDetails = userDetailsService
+            .loadUserByUsername(authenticationRequest.getUsername());
+        
         try {
-            
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                authenticationRequest.getUsername(), 
-                PasswordEncoder.encodePassword(authenticationRequest.getPassword())));     
+             
+            if(!encoder.matches(authenticationRequest.getPassword(), userDetails.getPassword())) {
+                throw new BadCredentialsException("Incorrect password");
+            }
+            // authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+            //     authenticationRequest.getUsername(), 
+            //     authenticationRequest.getPassword()));     
 
         } catch (BadCredentialsException e) {
             throw new Exception("Incorrect username or password", e);            
         }
 
-        final UserDetails userDetails = userDetailsService
-            .loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtTokenUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));

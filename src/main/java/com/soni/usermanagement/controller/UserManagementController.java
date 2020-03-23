@@ -55,9 +55,19 @@ public class UserManagementController {
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
-        repo.save(newUser);
-        // adding new login details
-        loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
+        try {
+            repo.save(newUser);
+            // adding new login details
+            loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
+        
+        } catch(Exception e) {
+
+            // rolling back changes
+            user = repo.findByEmail(newUser.getEmail()).orElse(null);
+            repo.deleteById(user.getId());
+            throw e;
+        }
+        
         throw new NewUserAdded(email);
     }
 
