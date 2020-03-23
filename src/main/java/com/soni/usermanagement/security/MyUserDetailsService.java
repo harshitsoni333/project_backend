@@ -2,7 +2,7 @@ package com.soni.usermanagement.security;
 
 import java.util.ArrayList;
 
-import com.soni.usermanagement.exception.error.EntryNotFound;
+import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.repository.UserLoginRepo;

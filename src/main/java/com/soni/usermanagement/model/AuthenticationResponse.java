@@ -1,4 +1,4 @@
-package com.soni.usermanagement.security;
+package com.soni.usermanagement.model;
 
 /**
  * AuthenticationResponse

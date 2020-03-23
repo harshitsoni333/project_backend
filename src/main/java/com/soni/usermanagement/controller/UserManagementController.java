@@ -4,11 +4,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
-import com.soni.usermanagement.exception.success.NewUserAdded;
-import com.soni.usermanagement.exception.success.UserUpdated;
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.model.ResponseMessage;
@@ -43,7 +41,7 @@ public class UserManagementController {
     }
 
     @PostMapping(path = "/user", consumes = "application/json")
-    public void addUser(@RequestBody UserManagement newUser) {
+    public ResponseEntity<?> addUser(@RequestBody UserManagement newUser) {
 
         String email = newUser.getEmail();
 
@@ -61,18 +59,20 @@ public class UserManagementController {
             loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
         
         } catch(Exception e) {
-
-            // rolling back changes
+            
+            // if login details fail to be saved
+            // rolling back changes made to UserManagement
             user = repo.findByEmail(newUser.getEmail()).orElse(null);
             repo.deleteById(user.getId());
             throw e;
         }
         
-        throw new NewUserAdded(email);
+        return ResponseEntity.ok(new ResponseMessage(
+            "New user added: " + newUser.getEmail()));
     }
 
     @PutMapping(path="/user/{email}", consumes = "application/json")
-    public void updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
         // get the existing user
         UserManagement user = repo.findByEmail(email).orElse(null);
@@ -92,7 +92,9 @@ public class UserManagementController {
         user.setLastName(newUser.getLastName());
         user.setProfile(newUser.getProfile());
         repo.save(user);
-        throw new UserUpdated(newUser.getEmail());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "User details updated: " + user.getEmail()));
     }
 
     @GetMapping("/user/{email}")

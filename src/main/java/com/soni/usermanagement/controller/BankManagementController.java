@@ -1,21 +1,20 @@
 package com.soni.usermanagement.controller;
 
-import javax.validation.Valid;
-
 import java.util.Arrays;
 import java.util.List;
 
-import com.soni.usermanagement.repository.BankManagementRepo;
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
-import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.success.BankDeleted;
-import com.soni.usermanagement.exception.success.BankUpdated;
-import com.soni.usermanagement.exception.success.NewBankAdded;
+import javax.validation.Valid;
+
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.BankManagement;
+import com.soni.usermanagement.model.ResponseMessage;
+import com.soni.usermanagement.repository.BankManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +44,7 @@ public class BankManagementController {
     }
 
     @PostMapping("/bank")
-    public void addBank(@RequestBody BankManagement newBank) {
+    public ResponseEntity<?> addBank(@RequestBody BankManagement newBank) {
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
@@ -57,19 +56,24 @@ public class BankManagementController {
         if(bank != null) throw new EntryAlreadyExists(bank.getBankCode(), bank.getBankName());
 
         repo.save(newBank);
-        throw new NewBankAdded(newBank.getBankCode(), newBank.getBankName());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "New bank added: " + newBank.getBankCode()));
     }
 
     @DeleteMapping("/bank/{bankCode}")
-    public void deleteBank(@PathVariable("bankCode") String bankCode) {
+    public ResponseEntity<?> deleteBank(@PathVariable("bankCode") String bankCode) {
+
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new EntryNotFound(bankCode);
         repo.deleteById(bank.getId());
-        throw new BankDeleted(bank.getBankCode(), bank.getBankName());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "Bank deleted: " + bank.getBankCode()));
     }
 
     @PutMapping("/bank/{bankCode}")
-    public void updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
+    public ResponseEntity<?> updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
         
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new EntryNotFound(bankCode);
@@ -89,7 +93,8 @@ public class BankManagementController {
         bank.setContacts(newBank.getContacts());
 
         repo.save(bank);
-        throw new BankUpdated(bank.getBankCode(), bank.getBankName());
+        
+        return ResponseEntity.ok(new ResponseMessage("Bank updated: " + bank.getBankCode()));
     }
 
 }

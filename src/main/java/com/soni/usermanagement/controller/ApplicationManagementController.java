@@ -5,11 +5,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
-import com.soni.usermanagement.exception.success.AppDeleted;
-import com.soni.usermanagement.exception.success.AppUpdated;
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ApplicationManagement;
 import com.soni.usermanagement.model.ResponseMessage;
@@ -66,15 +64,19 @@ public class ApplicationManagementController {
     }
 
     @DeleteMapping("/applications/{applicationCode}")
-    public void deleteApplication(@PathVariable("applicationCode") String applicationCode) {
+    public ResponseEntity<?> deleteApplication(@PathVariable("applicationCode") String applicationCode) {
+
         ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
         if(application == null) throw new EntryNotFound(applicationCode);
+        
         repo.deleteById(application.getId());
-        throw new AppDeleted(application.getApplicationCode(), application.getApplicationName());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "Application deleted: " + application.getApplicationCode()));
     }
 
     @PutMapping("/applications/{applicationCode}")
-    public void updateApplication(@Valid @RequestBody ApplicationManagement newApplication, @PathVariable("applicationCode") String applicationCode) {
+    public ResponseEntity<?> updateApplication(@Valid @RequestBody ApplicationManagement newApplication, @PathVariable("applicationCode") String applicationCode) {
         ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
 
         if(application == null)
@@ -96,6 +98,8 @@ public class ApplicationManagementController {
         application.setContacts(newApplication.getContacts());
 
         repo.save(application);
-        throw new AppUpdated(application.getApplicationCode(), application.getApplicationName());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "Application updated: " + application.getApplicationCode()));
     }
 }

@@ -1,4 +1,9 @@
-package com.soni.usermanagement.security;
+package com.soni.usermanagement.controller;
+
+import com.soni.usermanagement.model.AuthenticationRequest;
+import com.soni.usermanagement.model.AuthenticationResponse;
+import com.soni.usermanagement.security.JwtTokenUtil;
+import com.soni.usermanagement.security.MyUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * HelloResource
  */
 @RestController
-public class HelloResource {
+public class AuthenticationController {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;

@@ -4,14 +4,15 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.methods.FileTypeValidator;
 import com.soni.usermanagement.model.FileTypeManagement;
+import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.FileTypeManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +43,7 @@ public class FileTypeManagementController {
     }
 
     @PostMapping("/fileTypes")
-    public ResponseEntity<String> addFileType(@Valid @RequestBody FileTypeManagement newFileType) {
+    public ResponseEntity<?> addFileType(@Valid @RequestBody FileTypeManagement newFileType) {
 
         if(FileTypeValidator.validateFileType(newFileType)) {
 
@@ -52,24 +53,27 @@ public class FileTypeManagementController {
             throw new EntryAlreadyExists(fileType.getFileTypeCode(), fileType.getDescription());
 
             repo.save(newFileType);
-            return new ResponseEntity<>("File type added: " + newFileType.getFileTypeCode(), HttpStatus.OK);
+
+            return ResponseEntity.ok(new ResponseMessage(
+                "New file type added: " + newFileType.getFileTypeCode()));
         }
-        return new ResponseEntity<>("file type can't be added: invalid new entry", HttpStatus.NOT_ACCEPTABLE);
+        else throw new InvalidEntry("File type can't be added. Check its contents again.");
     }
 
     @DeleteMapping("/fileTypes/{fileTypeCode}")
-    public ResponseEntity<String> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode) {
+    public ResponseEntity<?> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode) {
         
         // checking existense of fileType
         FileTypeManagement fileType = repo.findByFileTypeCode(fileTypeCode).orElse(null);
         if(fileType == null) throw new EntryNotFound(fileTypeCode);
         else repo.deleteById(fileType.getId());
 
-        return new ResponseEntity<>("file type deleted: " + fileTypeCode, HttpStatus.OK);
+        return ResponseEntity.ok(new ResponseMessage(
+            "File type deleted: " + fileType.getFileTypeCode()));
     }
 
     @PutMapping("/fileTypes/{fileTypeCode}")
-    public ResponseEntity<String> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, @PathVariable("fileTypeCode") String fileTypeCode) {
+    public ResponseEntity<?> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, @PathVariable("fileTypeCode") String fileTypeCode) {
         
         // checking file type existence and deleting
         FileTypeManagement fileType = repo.findByFileTypeCode(fileTypeCode).orElse(null);
@@ -89,8 +93,9 @@ public class FileTypeManagementController {
             fileType.setIsKMT54(newFileType.getIsKMT54());
             repo.save(fileType);
 
-            return new ResponseEntity<>("file type updated: " + fileType.getFileTypeCode(), HttpStatus.OK);
+            return ResponseEntity.ok(new ResponseMessage(
+                "File type updated: " + fileType.getFileTypeCode()));
         }
-        return new ResponseEntity<>("entry can't be updated: new entry not valid", HttpStatus.NOT_ACCEPTABLE);
+        else throw new InvalidEntry("File type can't be updated. Check updated contents again.");
     }
 }

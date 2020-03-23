@@ -1,21 +1,20 @@
 package com.soni.usermanagement.controller;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
-import com.soni.usermanagement.exception.success.FileDeleted;
-import com.soni.usermanagement.exception.success.FileUpdated;
-import com.soni.usermanagement.exception.success.NewFileAdded;
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.FileManagement;
+import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.FileManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +37,7 @@ public class FileManagementController {
     }
 
     @PostMapping(path="/file", consumes = "application/json")
-    public void addFile(@RequestBody FileManagement newFile) {
+    public ResponseEntity<?> addFile(@RequestBody FileManagement newFile) {
         
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newFile.getContacts().split(";[ ]*"));
@@ -50,11 +49,12 @@ public class FileManagementController {
         if(file != null) throw new EntryAlreadyExists(file.getFileCode(), file.getFileCode());
 
         repo.save(newFile);
-        throw new NewFileAdded(newFile.getFileCode(), newFile.getFileName());
+        
+        return ResponseEntity.ok(new ResponseMessage("New file added: " + newFile.getFileCode()));
     }
 
     @PutMapping(path = "/file/{fileCode}", consumes = "application/json")
-    public void updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
+    public ResponseEntity<?> updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
         
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
         if(file == null) throw new EntryNotFound(fileCode);
@@ -75,7 +75,8 @@ public class FileManagementController {
         file.setContacts(newFile.getContacts());
 
         repo.save(file);
-        throw new FileUpdated(file.getFileCode(), file.getFileName());
+
+        return ResponseEntity.ok(new ResponseMessage("File updated: " + file.getFileCode()));
     }
 
     @GetMapping("/file/{fileCode}")
@@ -87,11 +88,12 @@ public class FileManagementController {
     }
 
     @DeleteMapping("/file/{fileCode}")
-    public void deleteFile(@PathVariable("fileCode") String fileCode) {
+    public ResponseEntity<?> deleteFile(@PathVariable("fileCode") String fileCode) {
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
         if(file == null) throw new EntryNotFound(fileCode);
         repo.deleteById(file.getId());
-        throw new FileDeleted(file.getFileCode(), file.getFileName());
+
+        return ResponseEntity.ok(new ResponseMessage("File deleted: " + file.getFileCode()));
     }
 }

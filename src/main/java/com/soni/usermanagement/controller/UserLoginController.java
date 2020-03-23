@@ -2,10 +2,10 @@ package com.soni.usermanagement.controller;
 
 import javax.validation.Valid;
 
-import com.soni.usermanagement.exception.error.EmailNotValidException;
-import com.soni.usermanagement.exception.error.EntryAlreadyExists;
-import com.soni.usermanagement.exception.error.EntryNotFound;
-import com.soni.usermanagement.exception.error.InvalidEntry;
+import com.soni.usermanagement.exception.EmailNotValidException;
+import com.soni.usermanagement.exception.EntryAlreadyExists;
+import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.model.ResponseMessage;

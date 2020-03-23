@@ -1,6 +1,6 @@
 package com.soni.usermanagement.methods;
 
-import com.soni.usermanagement.exception.error.InvalidEntry;
+import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.model.FileTypeManagement;
 
 public class FileTypeValidator {

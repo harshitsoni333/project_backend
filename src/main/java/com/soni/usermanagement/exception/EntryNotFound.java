@@ -1,4 +1,4 @@
-package com.soni.usermanagement.exception.error;
+package com.soni.usermanagement.exception;
 
 public class EntryNotFound extends RuntimeException {
     private static final long serialVersionUID = 1L;
