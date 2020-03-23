@@ -1,0 +1,114 @@
+package com.soni.usermanagement.controller;
+
+import javax.validation.Valid;
+
+import com.soni.usermanagement.exception.error.EmailNotValidException;
+import com.soni.usermanagement.exception.error.EntryAlreadyExists;
+import com.soni.usermanagement.exception.error.EntryNotFound;
+import com.soni.usermanagement.exception.error.InvalidEntry;
+import com.soni.usermanagement.methods.EmailValidation;
+import com.soni.usermanagement.methods.PasswordEncoder;
+import com.soni.usermanagement.model.ResponseMessage;
+import com.soni.usermanagement.model.UserLogin;
+import com.soni.usermanagement.model.UserManagement;
+import com.soni.usermanagement.repository.UserLoginRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:4200")
+public class UserLoginController {
+
+    @Autowired
+    private UserLoginRepo repo;
+    @Autowired
+    private UserManagementRepo userRepo;
+
+    // @GetMapping("/logins")
+    // public List<UserLogin> getAllLogins() {
+    //     return repo.findAll();
+    // }
+
+    @PostMapping(path = "/logins", consumes = "application/json")
+    public ResponseEntity<?> addLogin(@RequestBody UserLogin newLogin) {
+
+        String userName = newLogin.getUserName();
+
+        // checking for existence in user_management
+        UserManagement user = userRepo.findByEmail(userName).orElse(null);
+        if(user == null) throw new EntryNotFound(userName + " (User not present in UserManagement)");
+
+        // checking if userName valid
+        if(!EmailValidation.emailValidator(userName))
+        throw new EmailNotValidException(userName);
+
+        // checking for duplicate entry
+        UserLogin login = repo.findByUserName(userName).orElse(null);
+        if(login != null) throw new EntryAlreadyExists(login.getUserName(), login.getProfile());
+        
+        // encoding password
+        newLogin.setPassword(PasswordEncoder.encodePassword(newLogin.getPassword()));
+
+        // save login details
+        repo.save(newLogin);
+        return ResponseEntity.ok(new ResponseMessage(
+            "New login details added for " + newLogin.getUserName()));
+    }
+
+    @PutMapping(path="/logins/{userName}", consumes = "application/json")
+    public ResponseEntity<?> updateLogin(@Valid @RequestBody UserLogin newLogin, @PathVariable("userName") String userName) {
+        
+        // get the existing login
+        UserLogin login = repo.findByUserName(userName).orElse(null);
+        if(login == null) throw new EntryNotFound(userName);
+
+        // checking for invalid userName
+        if(!EmailValidation.emailValidator(newLogin.getUserName()))
+        throw new EmailNotValidException(newLogin.getUserName());
+
+        //checking for duplicate entry
+        UserLogin obj = repo.findByUserName(newLogin.getUserName()).orElse(null);
+        if(obj != null && !obj.getUserName().equals(login.getUserName()))
+        throw new EntryAlreadyExists(obj.getUserName(), obj.getProfile());
+
+        // encrypting and saving password
+        login.setPassword(newLogin.getPassword());
+        login.setPassword(PasswordEncoder.encodePassword(login.getPassword()));
+        repo.save(login);
+        
+        return ResponseEntity.ok(new ResponseMessage(
+            "Password updated for " + login.getUserName()));
+    }
+
+    // @GetMapping("/logins/{userName}")
+    // public UserLogin getUser(@PathVariable("userName") String userName) {
+        
+    //     UserLogin login = repo.findByUserName(userName).orElse(null);
+    //     if(login == null) throw new EntryNotFound(userName);
+    //     return login;
+    // }
+
+    @DeleteMapping("/logins/{userName}")
+    public ResponseEntity<?> deleteLogin(@PathVariable("userName") String userName) {
+        
+        UserLogin login = repo.findByUserName(userName).orElse(null);
+        if(login == null) throw new EntryNotFound(userName);
+
+        UserManagement user = userRepo.findByEmail(userName).orElse(null);
+        if(user == null) repo.deleteById(login.getId());
+        else throw new InvalidEntry(
+            userName + "(login details can't be deleted because user is present in UserManagement)");
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "Login details deleted for " + login.getUserName()));
+    }
+}

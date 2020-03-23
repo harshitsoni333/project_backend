@@ -10,12 +10,13 @@ import com.soni.usermanagement.exception.error.EntryAlreadyExists;
 import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.AppDeleted;
 import com.soni.usermanagement.exception.success.AppUpdated;
-import com.soni.usermanagement.exception.success.NewAppAdded;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ApplicationManagement;
+import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.ApplicationManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,8 +45,8 @@ public class ApplicationManagementController {
         else return application;
     }
 
-    @PostMapping("/applications")
-    public void addApplication(@RequestBody ApplicationManagement newApplication) {
+    @PostMapping("/application")
+    public ResponseEntity<?> addApplication(@RequestBody ApplicationManagement newApplication) {
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newApplication.getContacts().split(";[ ]*"));
@@ -59,7 +60,9 @@ public class ApplicationManagementController {
         throw new EntryAlreadyExists(application.getApplicationCode(), application.getApplicationName());
 
         repo.save(newApplication);
-        throw new NewAppAdded(newApplication.getApplicationCode(), newApplication.getApplicationName());
+        //throw new NewAppAdded(newApplication.getAppCode(), newApplication.getAppName());
+        return ResponseEntity.ok(new ResponseMessage(
+            "New application added: " + newApplication.getApplicationCode()));
     }
 
     @DeleteMapping("/applications/{applicationCode}")

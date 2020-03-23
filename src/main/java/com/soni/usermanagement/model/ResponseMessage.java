@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import org.springframework.http.HttpStatus;
+
 public class ResponseMessage {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
@@ -41,5 +43,10 @@ public class ResponseMessage {
         this.message = message;
     }
 
-    
+    public ResponseMessage(String message) {
+        this.timestamp = LocalDateTime.now();
+        this.status = HttpStatus.OK.toString();
+        this.message = message;
+    }
+
 }
