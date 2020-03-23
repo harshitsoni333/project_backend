@@ -8,15 +8,17 @@ import com.soni.usermanagement.exception.error.EmailNotValidException;
 import com.soni.usermanagement.exception.error.EntryAlreadyExists;
 import com.soni.usermanagement.exception.error.EntryNotFound;
 import com.soni.usermanagement.exception.success.NewUserAdded;
-import com.soni.usermanagement.exception.success.UserDeleted;
 import com.soni.usermanagement.exception.success.UserUpdated;
 import com.soni.usermanagement.methods.EmailValidation;
+import com.soni.usermanagement.methods.PasswordEncoder;
+import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserLoginRepo;
 import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,7 +56,8 @@ public class UserManagementController {
         if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
         repo.save(newUser);
-        loginRepo.save(new UserLogin(newUser.getEmail(), "root", newUser.getProfile()));
+        // adding new login details
+        loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
         throw new NewUserAdded(email);
     }
 
@@ -91,11 +94,15 @@ public class UserManagementController {
     }
 
     @DeleteMapping("/user/{email}")
-    public UserManagement deleteUser(@PathVariable("email") String email) {
+    public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) throw new EntryNotFound(email);
+        
         repo.deleteById(user.getId());
-        throw new UserDeleted(email);
+        // deleteing login details
+        loginRepo.deleteByUserName(email);
+
+        return ResponseEntity.ok(new ResponseMessage("User deleted: " + email));
     }
 }

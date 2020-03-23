@@ -11,5 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface UserLoginRepo extends JpaRepository<UserLogin, Integer> {
 
     // user-defined methods
-    Optional<UserLogin> findByUserName(String userName);
+    public Optional<UserLogin> findByUserName(String userName);
+    public void deleteByUserName(String userName); 
 }
