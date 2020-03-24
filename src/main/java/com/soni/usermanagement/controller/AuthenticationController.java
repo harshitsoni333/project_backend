@@ -3,7 +3,7 @@ package com.soni.usermanagement.controller;
 import com.soni.usermanagement.model.AuthenticationRequest;
 import com.soni.usermanagement.model.AuthenticationResponse;
 import com.soni.usermanagement.security.JwtTokenUtil;
-import com.soni.usermanagement.security.MyUserDetailsService;
+import com.soni.usermanagement.services.MyUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
