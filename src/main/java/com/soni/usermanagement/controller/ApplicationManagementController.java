@@ -43,7 +43,7 @@ public class ApplicationManagementController {
         else return application;
     }
 
-    @PostMapping("/application")
+    @PostMapping("/applications")
     public ResponseEntity<?> addApplication(@RequestBody ApplicationManagement newApplication) {
 
         // checking for invalid e-mails

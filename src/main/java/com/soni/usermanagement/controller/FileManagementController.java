@@ -31,12 +31,12 @@ public class FileManagementController {
     @Autowired
     private FileManagementRepo repo;
 
-    @GetMapping("/file")
+    @GetMapping("/files")
     public List<FileManagement> getAllFiles() {
         return repo.findAll();
     }
 
-    @PostMapping(path="/file", consumes = "application/json")
+    @PostMapping(path="/files", consumes = "application/json")
     public ResponseEntity<?> addFile(@RequestBody FileManagement newFile) {
         
         // CHECKING for INVALID E-MAILS
@@ -53,7 +53,7 @@ public class FileManagementController {
         return ResponseEntity.ok(new ResponseMessage("New file added: " + newFile.getFileCode()));
     }
 
-    @PutMapping(path = "/file/{fileCode}", consumes = "application/json")
+    @PutMapping(path = "/files/{fileCode}", consumes = "application/json")
     public ResponseEntity<?> updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
         
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
@@ -79,7 +79,7 @@ public class FileManagementController {
         return ResponseEntity.ok(new ResponseMessage("File updated: " + file.getFileCode()));
     }
 
-    @GetMapping("/file/{fileCode}")
+    @GetMapping("/files/{fileCode}")
     public FileManagement getFile(@PathVariable("fileCode") String fileCode) {
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
@@ -87,7 +87,7 @@ public class FileManagementController {
         else return file;
     }
 
-    @DeleteMapping("/file/{fileCode}")
+    @DeleteMapping("/files/{fileCode}")
     public ResponseEntity<?> deleteFile(@PathVariable("fileCode") String fileCode) {
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);

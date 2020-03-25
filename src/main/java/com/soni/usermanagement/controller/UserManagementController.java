@@ -35,12 +35,12 @@ public class UserManagementController {
     @Autowired
     private UserLoginRepo loginRepo;
 
-    @GetMapping("/user")
+    @GetMapping("/users")
     public List<UserManagement> getAllUsers() {
         return repo.findAll();
     }
 
-    @PostMapping(path = "/user", consumes = "application/json")
+    @PostMapping(path = "/users", consumes = "application/json")
     public ResponseEntity<?> addUser(@RequestBody UserManagement newUser) {
 
         String email = newUser.getEmail();
@@ -71,7 +71,7 @@ public class UserManagementController {
             "New user added: " + newUser.getEmail()));
     }
 
-    @PutMapping(path="/user/{email}", consumes = "application/json")
+    @PutMapping(path="/users/{email}", consumes = "application/json")
     public ResponseEntity<?> updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
         
         // get the existing user
@@ -97,7 +97,7 @@ public class UserManagementController {
             "User details updated: " + user.getEmail()));
     }
 
-    @GetMapping("/user/{email}")
+    @GetMapping("/users/{email}")
     public UserManagement getUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
@@ -105,7 +105,7 @@ public class UserManagementController {
         return user;
     }
 
-    @DeleteMapping("/user/{email}")
+    @DeleteMapping("/users/{email}")
     public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
         
         UserManagement user = repo.findByEmail(email).orElse(null);
