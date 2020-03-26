@@ -108,12 +108,14 @@ public class UserManagementController {
     @DeleteMapping("/users/{email}")
     public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
         
+        // checking user existence
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) throw new EntryNotFound(email);
         
         repo.deleteById(user.getId());
-        // deleteing login details
-        loginRepo.deleteByUserName(email);
+        // deleting login details
+        UserLogin login = loginRepo.findByUserName(email).orElse(null);
+        loginRepo.deleteById(login.getId());
 
         return ResponseEntity.ok(new ResponseMessage("User deleted: " + email));
     }
