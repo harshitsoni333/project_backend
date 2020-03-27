@@ -66,6 +66,12 @@ public class UserManagementController {
             newUser.getEmail(),
             EmailMessage.makeSubjectFor("create", newUser.getFirstName()),
             EmailMessage.makeMessageFor("create", newUser));
+
+        // SENDING LOGIN DETAILS THROUGH MAIL
+        emailService.sendMail(
+            newUser.getEmail(), 
+            EmailMessage.makeSubjectFor("login", newUser.getFirstName()), 
+            EmailMessage.makePasswordMessageFor("login", newUser.getFirstName(), newUser.getEmail(), "root"));
         
         return ResponseEntity.ok(new ResponseMessage(
             "New user added: " + newUser.getEmail()));

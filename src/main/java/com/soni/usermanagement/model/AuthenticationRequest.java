@@ -2,15 +2,23 @@ package com.soni.usermanagement.model;
 
 public class AuthenticationRequest {
 
-    private String username;
+    private String userName;
     private String password;
 
-    public String getUsername() {
-        return username;
+    public AuthenticationRequest(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public AuthenticationRequest() {
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPassword() {
@@ -19,14 +27,6 @@ public class AuthenticationRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public AuthenticationRequest(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public AuthenticationRequest() {
     }
     
 }

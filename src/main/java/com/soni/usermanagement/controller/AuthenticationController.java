@@ -38,7 +38,7 @@ public class AuthenticationController {
     throws Exception{
 
         final UserDetails userDetails = userDetailsService
-            .loadUserByUsername(authenticationRequest.getUsername());
+            .loadUserByUsername(authenticationRequest.getUserName());
         
         try {
              

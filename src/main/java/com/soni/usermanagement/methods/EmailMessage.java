@@ -8,11 +8,14 @@ import com.soni.usermanagement.model.UserManagement;
 public class EmailMessage {
 
     public static String makeSubjectFor(String request, String recipient) {
+
         switch (request) {
 
             case "update": return("Account details updated successfully");
             case "create": return("Welcome " + recipient + "!");
             case "delete": return("Account deleted successfully");
+            case "login": return("Here are your login details.");
+            case "changePassword": return("Your password has been changed!");
 
             default: return("Sample Default Subject");
         }
@@ -30,7 +33,7 @@ public class EmailMessage {
                         "Name: %s %s \n" +
                         "E-mail: %s \n" +
                         "Profile/Designation: %s \n\n" +
-                        "Hope you have a great day ahead.\nBest Regards,\nSUP Team",
+                        "We look forward to working with you.\nBest Regards,\nSUP Team",
 
                         user.getFirstName(), 
                         user.getFirstName(), user.getLastName(),
@@ -64,7 +67,7 @@ public class EmailMessage {
                         "Name: %s %s \n" +
                         "E-mail: %s \n" +
                         "Profile/Designation: %s \n\n" +
-                        "Hope you have a great day ahead.\nBest Regards,\nSUP Team",
+                        "We will miss you.\nBest Regards,\nSUP Team",
 
                         user.getFirstName(), 
                         user.getFirstName(), user.getLastName(),
@@ -73,6 +76,38 @@ public class EmailMessage {
                     ));
         
             default: return("Sample email message");
+        }
+    }
+
+    public static String makePasswordMessageFor(String request, String name, String userName, String password) {
+
+        switch(request) {
+
+            case "login":
+                return(
+                    String.format(
+                        "Hello %s! \n" +
+                        "Welcome to Smart Utilities Portal. \n\n" +
+                        "Here are your login credentials: \n" +
+                        "Username: %s \n" +
+                        "Password: %s \n\n" +
+                        "We look forward to working with you.\nBest Regards,\nSUP Team", 
+                        
+                        name, userName, password));
+            
+            case "changePassword":
+                return(
+                    String.format(
+                        "Hello %s! \n" +
+                        "Your password has been changed successfully. \n\n" +
+                        "Here are your new login credentials: \n" +
+                        "Username: %s \n" +
+                        "Password: %s \n\n" +
+                        "We look forward to working with you.\nBest Regards,\nSUP Team", 
+                        
+                        name, userName, password));
+            
+            default: return("sample login details body");
         }
     }
 }

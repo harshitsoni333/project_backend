@@ -8,6 +8,7 @@ import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.model.ResponseMessage;
@@ -15,6 +16,7 @@ import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserLoginRepo;
 import com.soni.usermanagement.repository.UserManagementRepo;
+import com.soni.usermanagement.services.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,8 @@ public class UserLoginController {
     private UserLoginRepo repo;
     @Autowired
     private UserManagementRepo userRepo;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/logins")
     public List<UserLogin> getAllLogins() {
@@ -63,6 +67,7 @@ public class UserLoginController {
 
         // save login details
         repo.save(newLogin);
+
         return ResponseEntity.ok(new ResponseMessage(
             "New login details added for " + newLogin.getUserName()));
     }
@@ -74,6 +79,9 @@ public class UserLoginController {
         UserLogin login = repo.findByUserName(userName).orElse(null);
         if(login == null) throw new EntryNotFound(userName);
 
+        // find user in usermanagement
+        UserManagement user = userRepo.findByEmail(userName).orElse(null);
+
         // checking for invalid userName
         if(!EmailValidation.emailValidator(newLogin.getUserName()))
         throw new EmailNotValidException(newLogin.getUserName());
@@ -84,9 +92,15 @@ public class UserLoginController {
         throw new EntryAlreadyExists(obj.getUserName(), obj.getProfile());
 
         // encrypting and saving password
-        login.setPassword(newLogin.getPassword());
-        login.setPassword(PasswordEncoder.encodePassword(login.getPassword()));
+        login.setPassword(PasswordEncoder.encodePassword(newLogin.getPassword()));
         repo.save(login);
+
+        // sending a mail for details
+        emailService.sendMail(
+            login.getUserName(), 
+            EmailMessage.makeSubjectFor("changePassword", user.getFirstName()), 
+            EmailMessage.makePasswordMessageFor(
+                "changePassword", user.getFirstName(), login.getUserName(), newLogin.getPassword()));
         
         return ResponseEntity.ok(new ResponseMessage(
             "Password updated for " + login.getUserName()));
