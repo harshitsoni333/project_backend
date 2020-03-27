@@ -10,6 +10,7 @@ import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
+import com.soni.usermanagement.methods.PasswordGenerator;
 import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
@@ -57,9 +58,13 @@ public class UserManagementController {
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
+        // saving user
         repo.save(newUser);
+        
         // adding new login details
-        loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
+        String password = PasswordGenerator.generatePassword();
+        loginRepo.save(new UserLogin(
+            newUser.getEmail(), PasswordEncoder.encodePassword(password), newUser.getProfile()));
         
         // sending a confirmation mail
         emailService.sendMail(
@@ -71,7 +76,8 @@ public class UserManagementController {
         emailService.sendMail(
             newUser.getEmail(), 
             EmailMessage.makeSubjectFor("login", newUser.getFirstName()), 
-            EmailMessage.makePasswordMessageFor("login", newUser.getFirstName(), newUser.getEmail(), "root"));
+            EmailMessage.makePasswordMessageFor(
+                "login", newUser.getFirstName(), newUser.getEmail(), password));
         
         return ResponseEntity.ok(new ResponseMessage(
             "New user added: " + newUser.getEmail()));

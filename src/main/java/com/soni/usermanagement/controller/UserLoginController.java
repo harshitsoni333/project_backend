@@ -8,9 +8,11 @@ import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.PasswordNotValid;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
+import com.soni.usermanagement.methods.PasswordValidator;
 import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
@@ -20,6 +22,7 @@ import com.soni.usermanagement.services.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +42,8 @@ public class UserLoginController {
     private UserManagementRepo userRepo;
     @Autowired
     private EmailService emailService;
+
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @GetMapping("/logins")
     public List<UserLogin> getAllLogins() {
@@ -62,6 +67,10 @@ public class UserLoginController {
         UserLogin login = repo.findByUserName(userName).orElse(null);
         if(login != null) throw new EntryAlreadyExists(login.getUserName(), login.getProfile());
         
+        // validating password
+        if(!PasswordValidator.validate(newLogin.getPassword()))
+        throw new PasswordNotValid(newLogin.getPassword());
+
         // encoding password
         newLogin.setPassword(PasswordEncoder.encodePassword(newLogin.getPassword()));
 
@@ -90,6 +99,14 @@ public class UserLoginController {
         UserLogin obj = repo.findByUserName(newLogin.getUserName()).orElse(null);
         if(obj != null && !obj.getUserName().equals(login.getUserName()))
         throw new EntryAlreadyExists(obj.getUserName(), obj.getProfile());
+
+        // validating password
+        if(!PasswordValidator.validate(newLogin.getPassword()))
+        throw new PasswordNotValid(newLogin.getPassword());
+
+        // checking if new password is same as old one
+        if(encoder.matches(newLogin.getPassword(), login.getPassword()))
+        throw new InvalidEntry("Password cannot be same as previous one");
 
         // encrypting and saving password
         login.setPassword(PasswordEncoder.encodePassword(newLogin.getPassword()));
