@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.model.ResponseMessage;
@@ -14,6 +15,7 @@ import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserLoginRepo;
 import com.soni.usermanagement.repository.UserManagementRepo;
+import com.soni.usermanagement.services.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,8 @@ public class UserManagementController {
     private UserManagementRepo repo;
     @Autowired
     private UserLoginRepo loginRepo;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/users")
     public List<UserManagement> getAllUsers() {
@@ -53,19 +57,15 @@ public class UserManagementController {
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user != null) throw new EntryAlreadyExists(user.getFirstName(), user.getEmail());
 
-        try {
-            repo.save(newUser);
-            // adding new login details
-            loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
+        repo.save(newUser);
+        // adding new login details
+        loginRepo.save(new UserLogin(newUser.getEmail(), PasswordEncoder.encodePassword("root"), newUser.getProfile()));
         
-        } catch(Exception e) {
-            
-            // if login details fail to be saved
-            // rolling back changes made to UserManagement
-            user = repo.findByEmail(newUser.getEmail()).orElse(null);
-            repo.deleteById(user.getId());
-            throw e;
-        }
+        // sending a confirmation mail
+        emailService.sendMail(
+            newUser.getEmail(),
+            EmailMessage.makeSubjectFor("create", newUser.getFirstName()),
+            EmailMessage.makeMessageFor("create", newUser));
         
         return ResponseEntity.ok(new ResponseMessage(
             "New user added: " + newUser.getEmail()));
@@ -98,6 +98,12 @@ public class UserManagementController {
         login.setProfile(newUser.getProfile());
         loginRepo.save(login);
 
+        // sending a confirmation email
+        emailService.sendMail(
+                newUser.getEmail(),
+                EmailMessage.makeSubjectFor("update", newUser.getFirstName()),
+                EmailMessage.makeMessageFor("update", newUser));
+
         return ResponseEntity.ok(new ResponseMessage(
             "User details updated: " + user.getEmail()));
     }
@@ -122,6 +128,11 @@ public class UserManagementController {
         UserLogin login = loginRepo.findByUserName(email).orElse(null);
         loginRepo.deleteById(login.getId());
 
+        emailService.sendMail(
+                user.getEmail(),
+                EmailMessage.makeSubjectFor("delete", user.getFirstName()),
+                EmailMessage.makeMessageFor("delete", user));
+        
         return ResponseEntity.ok(new ResponseMessage("User deleted: " + email));
     }
 }
