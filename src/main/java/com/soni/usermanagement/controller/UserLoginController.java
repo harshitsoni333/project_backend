@@ -1,5 +1,7 @@
 package com.soni.usermanagement.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import com.soni.usermanagement.exception.EmailNotValidException;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,10 +36,10 @@ public class UserLoginController {
     @Autowired
     private UserManagementRepo userRepo;
 
-    // @GetMapping("/logins")
-    // public List<UserLogin> getAllLogins() {
-    //     return repo.findAll();
-    // }
+    @GetMapping("/logins")
+    public List<UserLogin> getAllLogins() {
+        return repo.findAll();
+    }
 
     @PostMapping(path = "/logins", consumes = "application/json")
     public ResponseEntity<?> addLogin(@RequestBody UserLogin newLogin) {
@@ -89,13 +92,13 @@ public class UserLoginController {
             "Password updated for " + login.getUserName()));
     }
 
-    // @GetMapping("/logins/{userName}")
-    // public UserLogin getUser(@PathVariable("userName") String userName) {
+    @GetMapping("/logins/{userName}")
+    public UserLogin getUser(@PathVariable("userName") String userName) {
         
-    //     UserLogin login = repo.findByUserName(userName).orElse(null);
-    //     if(login == null) throw new EntryNotFound(userName);
-    //     return login;
-    // }
+        UserLogin login = repo.findByUserName(userName).orElse(null);
+        if(login == null) throw new EntryNotFound(userName);
+        return login;
+    }
 
     @DeleteMapping("/logins/{userName}")
     public ResponseEntity<?> deleteLogin(@PathVariable("userName") String userName) {

@@ -93,6 +93,11 @@ public class UserManagementController {
         user.setProfile(newUser.getProfile());
         repo.save(user);
 
+        //updating profile in login_details
+        UserLogin login = loginRepo.findByUserName(email).orElse(null);
+        login.setProfile(newUser.getProfile());
+        loginRepo.save(login);
+
         return ResponseEntity.ok(new ResponseMessage(
             "User details updated: " + user.getEmail()));
     }
