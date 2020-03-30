@@ -161,21 +161,23 @@ public class UserLoginController {
 
         // find login
         UserLogin login = repo.findByUserName(userName).orElse(null);
-        //creating temporary password
-        String tempPassword = PasswordGenerator.generatePassword();
 
-        if(login == null) login = new UserLogin(1, userName, tempPassword, user.getProfile());
-        else login.setPassword(tempPassword);
-        
+        //creating and encoding temporary password
+        String tempPassword = PasswordGenerator.generatePassword();
+        String encodedPassword = PasswordEncoder.encodePassword(tempPassword);
+
+        if(login == null) login = new UserLogin(1, userName, encodedPassword, user.getProfile());
+        else login.setPassword(encodedPassword);
+
         // save temp password
         repo.save(login);
 
-        // send a mail
+        // send a reset mail with new password
         emailService.sendMail(
             userName, 
             EmailMessage.makeSubjectFor("forgotPassword", user.getFirstName()),
             EmailMessage.makePasswordMessageFor(
-                "forgotPassword", user.getFirstName(), userName, login.getPassword()));
+                "forgotPassword", user.getFirstName(), userName, tempPassword));
 
         return ResponseEntity.ok(new ResponseMessage(
             "A password reset mail has been sent to " + login.getUserName()));
