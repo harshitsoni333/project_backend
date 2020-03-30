@@ -12,6 +12,7 @@ import com.soni.usermanagement.exception.PasswordNotValid;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
+import com.soni.usermanagement.methods.PasswordGenerator;
 import com.soni.usermanagement.methods.PasswordValidator;
 import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.model.UserLogin;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -43,7 +45,7 @@ public class UserLoginController {
     @Autowired
     private EmailService emailService;
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();    
 
     @GetMapping("/logins")
     public List<UserLogin> getAllLogins() {
@@ -144,5 +146,38 @@ public class UserLoginController {
 
         return ResponseEntity.ok(new ResponseMessage(
             "Login details deleted for " + login.getUserName()));
+    }
+
+    @RequestMapping("/forgotPassword/{userName}")
+    public ResponseEntity<?> resetPassword(@PathVariable("userName") String userName) {
+
+        // if username is valid
+        if(!EmailValidation.emailValidator(userName))
+        throw new EmailNotValidException(userName);
+
+        // if user exists
+        UserManagement user = userRepo.findByEmail(userName).orElse(null);
+        if(user == null) throw new EntryNotFound(userName);
+
+        // find login
+        UserLogin login = repo.findByUserName(userName).orElse(null);
+        //creating temporary password
+        String tempPassword = PasswordGenerator.generatePassword();
+
+        if(login == null) login = new UserLogin(1, userName, tempPassword, user.getProfile());
+        else login.setPassword(tempPassword);
+        
+        // save temp password
+        repo.save(login);
+
+        // send a mail
+        emailService.sendMail(
+            userName, 
+            EmailMessage.makeSubjectFor("forgotPassword", user.getFirstName()),
+            EmailMessage.makePasswordMessageFor(
+                "forgotPassword", user.getFirstName(), userName, login.getPassword()));
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "A password reset mail has been sent to " + login.getUserName()));
     }
 }

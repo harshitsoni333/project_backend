@@ -16,6 +16,7 @@ public class EmailMessage {
             case "delete": return("Account deleted successfully");
             case "login": return("Here are your login details.");
             case "changePassword": return("Your password has been changed!");
+            case "forgotPassword": return ("Your password has been reset");
 
             default: return("Sample Default Subject");
         }
@@ -106,6 +107,19 @@ public class EmailMessage {
                         "We look forward to working with you.\nBest Regards,\nSUP Team", 
                         
                         name, userName, password));
+
+            case "forgotPassword":
+                return(
+                    String.format(
+                        "Hello %s! \n" +
+                        "Your password has been reset successfully. \n\n" +
+                        "Here are your new login credentials: \n" +
+                        "Username: %s \n" +
+                        "Password: %s \n\n" +
+                        "We look forward to working with you.\nBest Regards,\nSUP Team",
+                        
+                        name, userName, password)
+                );
             
             default: return("sample login details body");
         }

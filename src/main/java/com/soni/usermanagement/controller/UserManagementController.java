@@ -103,6 +103,7 @@ public class UserManagementController {
         user.setFirstName(newUser.getFirstName());
         user.setLastName(newUser.getLastName());
         user.setProfile(newUser.getProfile());
+        
         repo.save(user);
 
         //updating profile in login_details
