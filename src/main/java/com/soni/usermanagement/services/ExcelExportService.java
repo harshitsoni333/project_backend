@@ -3,6 +3,7 @@ package com.soni.usermanagement.services;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
 import com.soni.usermanagement.model.ContactManagement;
@@ -69,13 +70,14 @@ public class ExcelExportService {
 	        sheet.autoSizeColumn(2);
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
-	        
-			// ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			
+			String currDir = Paths.get("").toAbsolutePath().toString();
+			String filePath = currDir + "\\contacts.xlsx";
+			
 			try(FileOutputStream fout = new FileOutputStream(
-				new File("C:\\Users\\Soni\\Documents\\contacts.xlsx"))) {
+				new File(filePath))) {
 				workbook.write(fout);
 			}
-			String filePath = "C:\\Users\\Soni\\Documents\\contacts.xlsx";
 
 			return filePath;
             // return new ByteArrayInputStream(outputStream.toByteArray());
