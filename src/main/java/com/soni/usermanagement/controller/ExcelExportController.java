@@ -1,10 +1,14 @@
 package com.soni.usermanagement.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.methods.EmailMessage;
+import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 import com.soni.usermanagement.services.EmailService;
 import com.soni.usermanagement.services.ExcelExportService;
@@ -35,28 +39,26 @@ public class ExcelExportController {
     //}
 
     @PostMapping("/emailExcel")
-    public void emailCSV(@RequestBody String email, HttpServletResponse response) throws IOException {
+    public void emailCSV(@RequestBody String sendList, HttpServletResponse response) throws IOException {
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=ContactManagement.xlsx");
         String filePath = ExcelExportService.contactListToExcelFile(repo.findAll());
 
+        // validate all emails
+        List<String> emails = Arrays.asList(sendList.split(";[ ]*"));
+        for(String email: emails) 
+        if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
 
-
-        // Scanner scanner = new Scanner(stream);
-        // scanner.useDelimiter("\\Z");//To read all scanner content in one String
-        // String data = "";
-        // if (scanner.hasNext())
-        //     data = scanner.next();
-        
-        // send an email
-        emailService.sendMailWithAttachment(
-            email, 
-            EmailMessage.makeSubjectFor("exportExcel", email), 
-            "Sending you the excel file as requested. \n\n" +
-            "Hope you have a great day ahead. \nBest regards. \nTeam SUP",
-            filePath);
-
+        // send emails to all recipients
+        for(String email: emails) {
+            emailService.sendMailWithAttachment(
+                email, 
+                EmailMessage.makeSubjectFor("exportExcel", email), 
+                "Sending you the excel file as requested. \n\n" +
+                "Hope you have a great day ahead. \nBest regards. \nTeam SUP",
+                filePath);
+        }
     }
     
 }
