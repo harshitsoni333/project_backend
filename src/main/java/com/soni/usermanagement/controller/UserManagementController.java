@@ -106,8 +106,9 @@ public class UserManagementController {
         
         repo.save(user);
 
-        //updating profile in login_details
+        //updating userName and profile in login_details
         UserLogin login = loginRepo.findByUserName(email).orElse(null);
+        login.setUserName(newUser.getEmail());
         login.setProfile(newUser.getProfile());
         loginRepo.save(login);
 

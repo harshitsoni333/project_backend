@@ -1,7 +1,7 @@
 package com.soni.usermanagement.services;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExcelExportService {
 	
-	public static ByteArrayInputStream contactListToExcelFile(List<ContactManagement> contacts) {
+	public static String contactListToExcelFile(List<ContactManagement> contacts) {
 		try(Workbook workbook = new XSSFWorkbook()){
 			Sheet sheet = workbook.createSheet("Contacts");
 			
@@ -70,9 +70,15 @@ public class ExcelExportService {
             sheet.autoSizeColumn(3);
             sheet.autoSizeColumn(4);
 	        
-	        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	        workbook.write(outputStream);
-            return new ByteArrayInputStream(outputStream.toByteArray());
+			// ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			try(FileOutputStream fout = new FileOutputStream(
+				new File("C:\\Users\\Soni\\Documents\\contacts.xlsx"))) {
+				workbook.write(fout);
+			}
+			String filePath = "C:\\Users\\Soni\\Documents\\contacts.xlsx";
+
+			return filePath;
+            // return new ByteArrayInputStream(outputStream.toByteArray());
             
 		} catch (IOException ex) {
 			ex.printStackTrace();

@@ -17,6 +17,7 @@ public class EmailMessage {
             case "login": return("Here are your login details.");
             case "changePassword": return("Your password has been changed!");
             case "forgotPassword": return ("Your password has been reset");
+            case "exportExcel": return("Here is your requested file");
 
             default: return("Sample Default Subject");
         }
