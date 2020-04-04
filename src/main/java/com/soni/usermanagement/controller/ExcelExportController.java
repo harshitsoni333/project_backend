@@ -9,11 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
+import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 import com.soni.usermanagement.services.EmailService;
 import com.soni.usermanagement.services.ExcelExportService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,14 +41,14 @@ public class ExcelExportController {
     //}
 
     @PostMapping("/emailExcel")
-    public void emailCSV(@RequestBody String sendList, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> emailCSV(@RequestBody String sendList, HttpServletResponse response) throws IOException {
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=ContactManagement.xlsx");
         String filePath = ExcelExportService.contactListToExcelFile(repo.findAll());
 
         // validate all emails
-        List<String> emails = Arrays.asList(sendList.split(";[ ]*"));
+        List<String> emails = Arrays.asList(sendList.split(",[ ]*"));
         for(String email: emails) 
         if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
 
@@ -59,6 +61,8 @@ public class ExcelExportController {
                 "Hope you have a great day ahead. \nBest regards. \nTeam SUP",
                 filePath);
         }
+
+        return ResponseEntity.ok(new ResponseMessage("An email has been sent with the details."));
     }
     
 }
