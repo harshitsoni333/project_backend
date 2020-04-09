@@ -57,7 +57,7 @@ public class ContactManagementController {
         else repo.save(newContact);
 
         return ResponseEntity.ok(new ResponseMessage(
-            "Cantact added: " + newContact.getId()));
+            "Contact added: " + newContact.getId()));
     }
 
     @DeleteMapping("/contacts/{id}")

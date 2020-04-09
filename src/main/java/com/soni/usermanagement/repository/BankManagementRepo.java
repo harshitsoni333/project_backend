@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface BankManagementRepo extends JpaRepository<BankManagement, Integer> {
+public interface BankManagementRepo extends JpaRepository<BankManagement, Long> {
 
     // user-defined methods
     Optional<BankManagement> findByBankCode(String bankCode);

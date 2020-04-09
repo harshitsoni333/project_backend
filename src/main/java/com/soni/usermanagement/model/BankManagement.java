@@ -13,7 +13,7 @@ public class BankManagement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     @Column(name = "bank_code")
     private String bankCode;
@@ -24,11 +24,16 @@ public class BankManagement {
     @Column(name = "contacts")
     private String contacts;
 
-    public Integer getId() {
+
+    public BankManagement() {
+        this.contacts = "";
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -54,10 +59,6 @@ public class BankManagement {
 
     public void setContacts(String contacts) {
         this.contacts = contacts;
-    }
-
-    public BankManagement() {
-        this.contacts = "";
     }
 
 }
