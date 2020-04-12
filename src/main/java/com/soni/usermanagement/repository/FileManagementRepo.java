@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FileManagementRepo extends JpaRepository<FileManagement, Integer> {
+public interface FileManagementRepo extends JpaRepository<FileManagement, Long> {
     
     //user-defined methods
     Optional<FileManagement> findByFileCode(String fileCode);

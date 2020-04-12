@@ -1,19 +1,28 @@
 package com.soni.usermanagement.model;
 
+import java.io.Serializable;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import javassist.SerialVersionUID;
 
 @Entity
 @Table(name = "filemanagement")
-public class FileManagement {
+public class FileManagement implements Serializable {
+
+    private static final long SerialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     @Column(name = "filecode")
     private String fileCode;
@@ -27,11 +36,18 @@ public class FileManagement {
     @Column(name = "contacts")
     private String contacts;
 
-    public Integer getId() {
+    @ManyToMany(targetEntity = FileAppModel.class, mappedBy = "id", fetch = FetchType.LAZY)
+	private Set<FileAppModel> fileApps;
+
+    public FileManagement() {
+        this.contacts = "";
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -65,10 +81,6 @@ public class FileManagement {
 
     public void setContacts(String contacts) {
         this.contacts = contacts;
-    }
-
-    public FileManagement() {
-        this.contacts = "";
     }
 
 }   
