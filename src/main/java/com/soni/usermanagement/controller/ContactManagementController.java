@@ -5,12 +5,12 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
-import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;

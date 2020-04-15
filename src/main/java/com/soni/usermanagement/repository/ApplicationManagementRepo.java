@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ApplicationManagementRepo extends JpaRepository<ApplicationManagement, Integer> {
+public interface ApplicationManagementRepo extends JpaRepository<ApplicationManagement, Long> {
 
     // user-defined methods
     Optional<ApplicationManagement> findByApplicationCode(String applicationCode);

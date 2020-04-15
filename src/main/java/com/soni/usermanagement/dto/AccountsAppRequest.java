@@ -1,4 +1,4 @@
-package com.soni.usermanagement.model;
+package com.soni.usermanagement.dto;
 
 public class AccountsAppRequest {
 

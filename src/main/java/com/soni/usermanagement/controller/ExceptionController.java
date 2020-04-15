@@ -2,12 +2,12 @@ package com.soni.usermanagement.controller;
 
 import java.time.LocalDateTime;
 
+import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.exception.PasswordNotValid;
-import com.soni.usermanagement.model.ResponseMessage;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

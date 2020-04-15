@@ -28,6 +28,8 @@ public class AccountsAppModel {
     @Column(name = "last_updated_date")
     private String lastUpdatedDate;
 
+    
+
     public Long getId() {
         return id;
     }

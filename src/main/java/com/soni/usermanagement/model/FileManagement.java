@@ -1,24 +1,16 @@
 package com.soni.usermanagement.model;
 
-import java.io.Serializable;
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import javassist.SerialVersionUID;
 
 @Entity
 @Table(name = "filemanagement")
-public class FileManagement implements Serializable {
-
-    private static final long SerialVersionUID = 1L;
+public class FileManagement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,10 +27,7 @@ public class FileManagement implements Serializable {
     
     @Column(name = "contacts")
     private String contacts;
-
-    @ManyToMany(targetEntity = FileAppModel.class, mappedBy = "id", fetch = FetchType.LAZY)
-	private Set<FileAppModel> fileApps;
-
+    
     public FileManagement() {
         this.contacts = "";
     }

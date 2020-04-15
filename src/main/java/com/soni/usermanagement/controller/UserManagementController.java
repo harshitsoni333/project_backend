@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
@@ -11,7 +12,6 @@ import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
 import com.soni.usermanagement.methods.PasswordGenerator;
-import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.model.UserLogin;
 import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.UserLoginRepo;

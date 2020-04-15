@@ -24,6 +24,7 @@ public class BankManagement {
     @Column(name = "contacts")
     private String contacts;
 
+    
 
     public BankManagement() {
         this.contacts = "";

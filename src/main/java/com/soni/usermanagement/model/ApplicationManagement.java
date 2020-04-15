@@ -8,12 +8,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="applications")
+@Table(name = "applications")
 public class ApplicationManagement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     @Column(name = "app_code")
     private String applicationCode;
@@ -24,15 +24,13 @@ public class ApplicationManagement {
     @Column(name = "contacts")
     private String contacts;
 
-    public ApplicationManagement() {
-        this.contacts = "";
-    }
+    
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -59,6 +57,5 @@ public class ApplicationManagement {
     public void setContacts(String contacts) {
         this.contacts = contacts;
     }
-    
 
 }

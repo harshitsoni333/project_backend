@@ -6,10 +6,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
-import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 import com.soni.usermanagement.services.EmailService;
 import com.soni.usermanagement.services.ExcelExportService;

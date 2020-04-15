@@ -1,7 +1,7 @@
 package com.soni.usermanagement.controller;
 
-import com.soni.usermanagement.model.AuthenticationRequest;
-import com.soni.usermanagement.model.AuthenticationResponse;
+import com.soni.usermanagement.dto.AuthenticationRequest;
+import com.soni.usermanagement.dto.AuthenticationResponse;
 import com.soni.usermanagement.security.JwtTokenUtil;
 import com.soni.usermanagement.services.MyUserDetailsService;
 

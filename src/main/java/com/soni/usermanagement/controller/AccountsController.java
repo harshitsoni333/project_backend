@@ -4,13 +4,13 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.methods.AccountValidator;
 import com.soni.usermanagement.model.AccountsModel;
 import com.soni.usermanagement.model.BankManagement;
-import com.soni.usermanagement.model.ResponseMessage;
 import com.soni.usermanagement.repository.AccountsRepo;
 import com.soni.usermanagement.repository.BankManagementRepo;
 
