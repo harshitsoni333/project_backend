@@ -1,129 +1,40 @@
 package com.soni.usermanagement.dto;
 
-public class AccountsAppResponse {
+import org.springframework.beans.factory.annotation.Value;
 
-    // account id and details
-    private Long accountID;
-    private String iban;
-    private String bankCode;
-    private String entity;
+public interface AccountsAppResponse {
 
-    // details from appli id
-    private String fileCode;
-    private String applicationCode;
-    private String fileTypeCode;
-    private String isKMT54;
+    @Value("#{target.id}")
+    public Long getID();
 
-    // from accounts_app
-    private String format;
-    private String lastUpdatedUserEmail;
-    private String lastUpdatedDate;
+    @Value("#{target.account_id}")
+    public Long getAccountID();
 
-    public AccountsAppResponse() {
-    }
+    @Value("#{target.iban}")
+    public String getIban();
 
-    public AccountsAppResponse(Long accountID, String iban, String bankCode, String entity, String fileCode,
-            String applicationCode, String fileTypeCode, String isKMT54, String format, String lastUpdatedUserEmail,
-            String lastUpdatedDate) {
-        this.accountID = accountID;
-        this.iban = iban;
-        this.bankCode = bankCode;
-        this.entity = entity;
-        this.fileCode = fileCode;
-        this.applicationCode = applicationCode;
-        this.fileTypeCode = fileTypeCode;
-        this.isKMT54 = isKMT54;
-        this.format = format;
-        this.lastUpdatedUserEmail = lastUpdatedUserEmail;
-        this.lastUpdatedDate = lastUpdatedDate;
-    }
+    @Value("#{target.bank_code}")
+    public String getBankCode();
 
-    public Long getAccountID() {
-        return accountID;
-    }
+    @Value("#{target.entity}")
+    public String getEntity();
 
-    public void setAccountID(Long accountID) {
-        this.accountID = accountID;
-    }
+    @Value("#{target.is_kmt54}")
+    public String getIsKMT54();
 
-    public String getIban() {
-        return iban;
-    }
+    @Value("#{target.last_updated_user}")
+    public String getLastUpdatedUserEmail();
 
-    public void setIban(String iban) {
-        this.iban = iban;
-    }
+    @Value("#{target.last_updated_date}")
+    public String getLastUpdatedDate();
 
-    public String getBankCode() {
-        return bankCode;
-    }
+    @Value("#{target.file_code}")
+    public String getFileCode();
 
-    public void setBankCode(String bankCode) {
-        this.bankCode = bankCode;
-    }
+    @Value("#{target.app_code}")
+    public String getApplicationCode();
 
-    public String getEntity() {
-        return entity;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
-    }
-
-    public String getFileCode() {
-        return fileCode;
-    }
-
-    public void setFileCode(String fileCode) {
-        this.fileCode = fileCode;
-    }
-
-    public String getApplicationCode() {
-        return applicationCode;
-    }
-
-    public void setApplicationCode(String applicationCode) {
-        this.applicationCode = applicationCode;
-    }
-
-    public String getFileTypeCode() {
-        return fileTypeCode;
-    }
-
-    public void setFileTypeCode(String fileTypeCode) {
-        this.fileTypeCode = fileTypeCode;
-    }
-
-    public String getIsKMT54() {
-        return isKMT54;
-    }
-
-    public void setIsKMT54(String isKMT54) {
-        this.isKMT54 = isKMT54;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public String getLastUpdatedUserEmail() {
-        return lastUpdatedUserEmail;
-    }
-
-    public void setLastUpdatedUserEmail(String lastUpdatedUserEmail) {
-        this.lastUpdatedUserEmail = lastUpdatedUserEmail;
-    }
-
-    public String getLastUpdatedDate() {
-        return lastUpdatedDate;
-    }
-
-    public void setLastUpdatedDate(String lastUpdatedDate) {
-        this.lastUpdatedDate = lastUpdatedDate;
-    }
+    @Value("#{target.file_type_code}")
+    public String getFileTypeCode();
     
 }

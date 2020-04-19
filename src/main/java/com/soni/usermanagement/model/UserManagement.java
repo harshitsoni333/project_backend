@@ -27,6 +27,11 @@ public class UserManagement {
     @Column(name="profile")
     private String profile;
 
+
+    // to store latest update details
+    private static String lastUpdatedUserEmail;
+    private static String lastUpdatedDate;
+
     public Integer getId() {
         return id;
     }
@@ -65,6 +70,22 @@ public class UserManagement {
 
     public void setProfile(String profile) {
         this.profile = profile;
+    }
+
+    public static String getLastUpdatedUserEmail() {
+        return lastUpdatedUserEmail;
+    }
+
+    public static void setLastUpdatedUserEmail(String lastUpdatedUserEmail) {
+        UserManagement.lastUpdatedUserEmail = lastUpdatedUserEmail;
+    }
+
+    public static String getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
+
+    public static void setLastUpdatedDate(String lastUpdatedDate) {
+        UserManagement.lastUpdatedDate = lastUpdatedDate;
     }
 
 }

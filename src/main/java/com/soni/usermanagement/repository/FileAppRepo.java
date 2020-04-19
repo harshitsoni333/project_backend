@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 public interface FileAppRepo extends JpaRepository<FileAppFileTypeModel, Long> {
 
     @Query(nativeQuery = false,
-            value = "select new com.soni.usermanagement.dto.FileAppResponse(fa.id, f.fileCode, f.appCode, fa.fileTypeCode) " +
+            value = "select new com.soni.usermanagement.dto.FileAppResponse(fa.id, f.fileCode, f.applicationCode, fa.fileTypeCode) " +
                     "from FileAppFileTypeModel fa INNER JOIN FileAppModel f " +
                     "ON fa.fileAppID = f.id"
     )

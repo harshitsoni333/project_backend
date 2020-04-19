@@ -20,7 +20,7 @@ public class FileAppModel {
     private String fileCode;
 
     @Column(name = "app_code")
-    private String appCode;
+    private String applicationCode;
 
     public Long getId() {
         return id;
@@ -38,12 +38,12 @@ public class FileAppModel {
         this.fileCode = fileCode;
     }
 
-    public String getAppCode() {
-        return appCode;
+    public String getApplicationCode() {
+        return applicationCode;
     }
 
-    public void setAppCode(String appCode) {
-        this.appCode = appCode;
+    public void setApplicationCode(String applicationCode) {
+        this.applicationCode = applicationCode;
     }
 
 }

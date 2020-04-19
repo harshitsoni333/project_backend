@@ -11,6 +11,8 @@ import javax.persistence.Table;
 @Table(name = "account_app_relation")
 public class AccountsAppModel {
 
+    // private static Long count = 10L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
@@ -28,7 +30,9 @@ public class AccountsAppModel {
     @Column(name = "last_updated_date")
     private String lastUpdatedDate;
 
-    
+    public AccountsAppModel() {
+        // this.id = count++;
+    }
 
     public Long getId() {
         return id;

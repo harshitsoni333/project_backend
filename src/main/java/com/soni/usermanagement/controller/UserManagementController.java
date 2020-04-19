@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -60,6 +61,10 @@ public class UserManagementController {
 
         // saving user
         repo.save(newUser);
+
+        // saving the last updated user details
+        UserManagement.setLastUpdatedUserEmail(newUser.getEmail());
+        UserManagement.setLastUpdatedDate(LocalDate.now().toString());
         
         // adding new login details
         String password = PasswordGenerator.generatePassword();
@@ -105,6 +110,10 @@ public class UserManagementController {
         user.setProfile(newUser.getProfile());
         
         repo.save(user);
+
+        // saving the last updated user details
+        UserManagement.setLastUpdatedUserEmail(user.getEmail());
+        UserManagement.setLastUpdatedDate(LocalDate.now().toString());
 
         //updating userName and profile in login_details
         UserLogin login = loginRepo.findByUserName(email).orElse(null);

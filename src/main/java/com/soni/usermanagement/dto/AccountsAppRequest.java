@@ -8,9 +8,6 @@ public class AccountsAppRequest {
     private String applicationCode;
     private String fileTypeCode;
 
-    private String lastUpdatedUserEmail;
-    private String lastUpdatedDate;
-
     public Long getAccountID() {
         return accountID;
     }
@@ -42,22 +39,5 @@ public class AccountsAppRequest {
     public void setFileTypeCode(String fileTypeCode) {
         this.fileTypeCode = fileTypeCode;
     }
-
-    public String getLastUpdatedUserEmail() {
-        return lastUpdatedUserEmail;
-    }
-
-    public void setLastUpdatedUserEmail(String lastUpdatedUserEmail) {
-        this.lastUpdatedUserEmail = lastUpdatedUserEmail;
-    }
-
-    public String getLastUpdatedDate() {
-        return lastUpdatedDate;
-    }
-
-    public void setLastUpdatedDate(String lastUpdatedDate) {
-        this.lastUpdatedDate = lastUpdatedDate;
-    }
-
 
 }
