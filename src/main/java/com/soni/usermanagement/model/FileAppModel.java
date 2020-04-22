@@ -46,4 +46,12 @@ public class FileAppModel {
         this.applicationCode = applicationCode;
     }
 
+    public FileAppModel() {
+    }
+
+    public FileAppModel(String fileCode, String applicationCode) {
+        this.fileCode = fileCode;
+        this.applicationCode = applicationCode;
+    }
+
 }

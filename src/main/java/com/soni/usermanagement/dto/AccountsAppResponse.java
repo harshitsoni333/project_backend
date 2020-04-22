@@ -7,8 +7,8 @@ public interface AccountsAppResponse {
     @Value("#{target.id}")
     public Long getID();
 
-    @Value("#{target.account_id}")
-    public Long getAccountID();
+    @Value("#{target.account_code}")
+    public String getAccountCode();
 
     @Value("#{target.iban}")
     public String getIban();
@@ -21,6 +21,9 @@ public interface AccountsAppResponse {
 
     @Value("#{target.is_kmt54}")
     public String getIsKMT54();
+
+    @Value("#{target.format}")
+    public String getFormat();
 
     @Value("#{target.last_updated_user}")
     public String getLastUpdatedUserEmail();

@@ -75,10 +75,11 @@ public class AccountsController {
         if (account != null)
             throw new EntryAlreadyExists("duplicate iban = ", account.getIban());
 
-        // check if bank id exists
-        BankManagement bank = bankRepo.findById(newAccount.getBankID()).orElse(null);
+        // check if bank code exists
+        BankManagement bank = bankRepo.findByBankCode(newAccount.getBankCode()).orElse(null);
         if(bank == null)
-            throw new EntryNotFound("bankID does not exist in banks = " + newAccount.getBankID().toString());
+            throw new EntryNotFound(
+                "bankCode does not exist in banks = " + newAccount.getBankCode().toString());
 
         // save new entry
         repo.save(newAccount);
@@ -132,14 +133,14 @@ public class AccountsController {
         if(obj != null && !obj.getIban().equals(account.getIban()))
         throw new EntryAlreadyExists(obj.getAccountCode(), obj.getIban());
 
-        // check if bank id exists
-        BankManagement bank = bankRepo.findById(newAccount.getBankID()).orElse(null);
+        // check if bank code exists
+        BankManagement bank = bankRepo.findByBankCode(newAccount.getBankCode()).orElse(null);
         if(bank == null)
-        throw new EntryNotFound("bankID does not exist in banks = " + newAccount.getBankID().toString());
+        throw new EntryNotFound("bankCode does not exist in banks = " + newAccount.getBankCode().toString());
 
         account.setAccountCode(newAccount.getAccountCode());
         account.setIban(newAccount.getIban());
-        account.setBankID(newAccount.getBankID());
+        account.setBankCode(newAccount.getBankCode());
         account.setEntity(newAccount.getEntity());
 
         // update account

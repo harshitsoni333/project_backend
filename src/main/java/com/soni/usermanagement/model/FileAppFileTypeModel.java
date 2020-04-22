@@ -46,4 +46,12 @@ public class FileAppFileTypeModel {
         this.fileTypeCode = fileTypeCode;
     }
 
+    public FileAppFileTypeModel(Long fileAppID, String fileTypeCode) {
+        this.fileAppID = fileAppID;
+        this.fileTypeCode = fileTypeCode;
+    }
+
+    public FileAppFileTypeModel() {
+    }
+
 }

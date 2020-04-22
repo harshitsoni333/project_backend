@@ -11,6 +11,8 @@ import javax.persistence.Table;
 @Table(name = "accounts")
 public class AccountsModel {
 
+    public static Long count = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id", updatable = false, nullable = false)
@@ -22,11 +24,31 @@ public class AccountsModel {
     @Column(name = "iban")
     private String iban;
 
-    @Column(name = "bank_id")
-    private Long bankID;
+    @Column(name = "bank_code")
+    private String bankCode;
 
     @Column(name = "entity")
     private String entity;
+
+    public AccountsModel(String accountCode, String iban, String bankCode, String entity) {
+        this.id = count++;
+        this.accountCode = accountCode;
+        this.iban = iban;
+        this.bankCode = bankCode;
+        this.entity = entity;
+    }
+
+    public AccountsModel() {
+    }
+
+    @Override
+    public String toString() {
+        return "[id = " + id + 
+                ", accountCode = " + accountCode + 
+                ", iban = "+ iban + 
+                ", bankCode = " + bankCode + 
+                ", entity = " + entity + "]";
+    }
 
     public Long getId() {
         return id;
@@ -52,12 +74,12 @@ public class AccountsModel {
         this.iban = iban;
     }
 
-    public Long getBankID() {
-        return bankID;
+    public String getBankCode() {
+        return bankCode;
     }
 
-    public void setBankID(Long bankID) {
-        this.bankID = bankID;
+    public void setBankCode(String bankCode) {
+        this.bankCode = bankCode;
     }
 
     public String getEntity() {
@@ -66,24 +88,5 @@ public class AccountsModel {
 
     public void setEntity(String entity) {
         this.entity = entity;
-    }
-
-    public AccountsModel(String accountCode, String iban, Long bankID, String entity) {
-        this.accountCode = accountCode;
-        this.iban = iban;
-        this.bankID = bankID;
-        this.entity = entity;
-    }
-
-    public AccountsModel() {
-    }
-
-    @Override
-    public String toString() {
-        return "[id = " + id + 
-                ", accountCode = " + accountCode + 
-                ", iban = "+ iban + 
-                ", bankID = " + bankID + 
-                ", entity = " + entity + "]";
     }
 }

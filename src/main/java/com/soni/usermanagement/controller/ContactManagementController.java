@@ -11,7 +11,11 @@ import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
+import com.soni.usermanagement.model.FileAppFileTypeModel;
+import com.soni.usermanagement.model.FileAppModel;
 import com.soni.usermanagement.repository.ContactManagementRepo;
+import com.soni.usermanagement.repository.FileAppModelRepo;
+import com.soni.usermanagement.repository.FileAppRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,10 @@ public class ContactManagementController {
 
     @Autowired
     private ContactManagementRepo repo;
+    @Autowired
+    private FileAppModelRepo fileAppModelRepo;
+    @Autowired
+    private FileAppRepo fileAppRepo;
 
     @GetMapping("/contacts")
     public List<ContactManagement> getAllContacts() {
@@ -37,9 +45,9 @@ public class ContactManagementController {
     }
 
     @GetMapping("/contacts/{id}")
-    public ContactManagement getContact(@PathVariable("id") Integer id) {
+    public ContactManagement getContact(@PathVariable("id") Long id) {
         ContactManagement contact = repo.findById(id).orElse(null);
-        if (contact == null) throw new EntryNotFound(Integer.toString(id));
+        if (contact == null) throw new EntryNotFound(Long.toString(id));
         else return contact;
     }
 
@@ -51,45 +59,96 @@ public class ContactManagementController {
         for(String i: emails) 
         if (!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
-        // cheking if entry already exists
+        // cheking if entry already exists by id
         ContactManagement contact = repo.findById(newContact.getId()).orElse(null);
-        if(contact != null) throw new EntryAlreadyExists(Integer.toString(contact.getId()), contact.getAppCode());
-        else repo.save(newContact);
+        if(contact != null) throw new EntryAlreadyExists(Long.toString(contact.getId()), contact.getAppCode());
+        
+        // check if file-app-filetype exists already
+        // get all contacts
+        List<ContactManagement> contacts = repo.findAll();
+        // find file-app-filetype combo
+        contact = contacts.stream()
+            .filter(obj -> obj.getFileCode().equals(newContact.getFileCode())
+                        && obj.getAppCode().equals(newContact.getAppCode())
+                        && obj.getFileTypeCode().equals(newContact.getFileTypeCode()))
+            .findAny()
+            .orElse(null);
+
+        // throw if combo exists already
+        if(contact != null)
+        throw new EntryAlreadyExists(
+            "File-app-filetype combination already exists with id: ", Long.toString(contact.getId()));
+
+        // save new contact
+        repo.save(newContact);
+
+        // save file-app combo
+        if(fileAppModelRepo.ifFileAppPresent(
+            newContact.getFileCode(), newContact.getAppCode()) == 0L)
+        fileAppModelRepo.save(new FileAppModel(newContact.getFileCode(),newContact.getAppCode()));
+        
+        // save file-app-filetype combo
+        Long fileAppID = fileAppRepo.getFileAppID(newContact.getFileCode(),newContact.getAppCode());
+        if(fileAppRepo.ifComboPresent(fileAppID, newContact.getFileTypeCode()) == 0L)
+        fileAppRepo.save(new FileAppFileTypeModel(fileAppID, newContact.getFileTypeCode()));
 
         return ResponseEntity.ok(new ResponseMessage(
-            "Contact added: " + newContact.getId()));
+            "New Contact added"));
     }
 
     @DeleteMapping("/contacts/{id}")
-    public ResponseEntity<?> deleteContact(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteContact(@PathVariable("id") Long id) {
         
         // checking existense of contact
         ContactManagement contact = repo.findById(id).orElse(null);
-        if(contact == null) throw new EntryNotFound(Integer.toString(id));
+        if(contact == null) throw new EntryNotFound(Long.toString(id));
         else repo.deleteById(id);
+
+        // delete file-app-filetype combo
+        Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
+        Long fileAppFileTypeID = fileAppRepo.getFileAppFileTypeID(fileAppID, contact.getFileTypeCode());
+        fileAppRepo.deleteById(fileAppFileTypeID);
 
         return ResponseEntity.ok(new ResponseMessage(
             "Contact deleted: " + contact.getId()));
     }
 
     @PutMapping("/contacts/{id}")
-    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagement newContact, @PathVariable("id") Integer id) {
+    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagement newContact, @PathVariable("id") Long id) {
         
         // checking Contact existence
         ContactManagement contact = repo.findById(id).orElse(null);
-        if(contact == null) throw new EntryNotFound(Integer.toString(id));
+        if(contact == null) throw new EntryNotFound(Long.toString(id));
 
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newContact.getContacts().split(";[ ]*"));
         for(String i: emails) 
         if (!EmailValidation.emailValidator(i)) throw new EmailNotValidException(i);
 
+        //checking for existing file-app-filetype combo
+        List<ContactManagement> contacts = repo.findAll();
+        // find file-app-filetype combo
+        ContactManagement existingContact = contacts.stream()
+            .filter(obj -> obj.getFileCode().equals(contact.getFileCode())
+                        && obj.getAppCode().equals(contact.getAppCode())
+                        && obj.getFileTypeCode().equals(newContact.getFileTypeCode()))
+            .findAny()
+            .orElse(null);
+
+        // throw if combo exists already
+        if(existingContact != null)
+        throw new EntryAlreadyExists(
+            "File-app-filetype combination already exists with id: ", 
+            Long.toString(existingContact.getId()));
+
         // updating values
-        contact.setAppCode(newContact.getAppCode());
-        contact.setFileCode(newContact.getFileCode());
         contact.setFileTypeCode(newContact.getFileTypeCode());
         contact.setContacts(newContact.getContacts());
         repo.save(contact);
+
+        // add new file-app-filetype combo
+        Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
+        fileAppRepo.save(new FileAppFileTypeModel(fileAppID, contact.getFileTypeCode()));
 
         return ResponseEntity.ok(new ResponseMessage(
             "Contact updated: " + contact.getId()));

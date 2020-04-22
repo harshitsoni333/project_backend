@@ -13,25 +13,25 @@ public class ContactManagement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-
+    private Long id;
+    
     @Column(name = "app_code")
     private String appCode;
 
     @Column(name = "file_code")
     private String fileCode;
-    
+
     @Column(name = "file_type_code")
     private String fileTypeCode;
     
     @Column(name = "contacts")
     private String contacts;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

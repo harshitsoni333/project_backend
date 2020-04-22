@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ContactManagementRepo extends JpaRepository<ContactManagement, Integer> {
+public interface ContactManagementRepo extends JpaRepository<ContactManagement, Long> {
 
     // user-defined methods
     Optional<ContactManagement> findByAppCode(String appCode);
