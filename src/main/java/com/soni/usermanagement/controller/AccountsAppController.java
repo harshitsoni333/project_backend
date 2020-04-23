@@ -19,6 +19,7 @@ import com.soni.usermanagement.model.AccountsModel;
 import com.soni.usermanagement.model.FileAppFileTypeModel;
 import com.soni.usermanagement.repository.AccountsAppRepo;
 import com.soni.usermanagement.repository.AccountsRepo;
+import com.soni.usermanagement.repository.FileAppModelRepo;
 import com.soni.usermanagement.repository.FileAppRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,8 @@ public class AccountsAppController {
     private FileAppRepo fileAppRepo;
     @Autowired
     private AccountsRepo accountsRepo;
+    @Autowired
+    private FileAppModelRepo fileAppModelRepo;
 
     final String uri = "http://localhost:8080/accounts";
 
@@ -111,6 +114,21 @@ public class AccountsAppController {
                     appCodes.get(i).equalsIgnoreCase(appCodes.get(j)))
                 throw new InvalidEntry("Duplicate entries: " + fileCodes.get(i) + appCodes.get(j));
             }
+        }
+
+        // check if application exists in file-app and file-app-filetype table
+        for(int i=0; i<fileCodes.size(); i++) {
+            if(fileAppModelRepo.ifFileAppPresent(fileCodes.get(i), appCodes.get(i)) == 0L)
+            throw new EntryNotFound("Application doesn't exist: " + 
+                                    fileCodes.get(i) + appCodes.get(i));
+            
+            Long fileAppID = fileAppRepo.getFileAppID(fileCodes.get(i), appCodes.get(i));
+            List<FileAppFileTypeModel> fileApps = fileAppRepo.findAll().stream()
+                    .filter(obj -> obj.getFileAppID().equals(fileAppID))
+                    .collect(Collectors.toList());
+            if(fileApps.size()<1)
+            throw new EntryNotFound("Application does not have any file-type: " +
+                                    fileCodes.get(i) + appCodes.get(i));
         }
 
         // make an account object
@@ -206,8 +224,8 @@ public class AccountsAppController {
         List<String> appCodes = new ArrayList<>();
 
         if(newAccountApp.getApplication1() != ""){
-            fileCodes.add(newAccountApp.getApplication1().substring(0, 3));
-            appCodes.add(newAccountApp.getApplication1().substring(3));}
+        fileCodes.add(newAccountApp.getApplication1().substring(0, 3));
+        appCodes.add(newAccountApp.getApplication1().substring(3));}
 
         if(newAccountApp.getApplication2() != ""){
         fileCodes.add(newAccountApp.getApplication2().substring(0, 3));
@@ -237,6 +255,21 @@ public class AccountsAppController {
                     appCodes.get(i).equalsIgnoreCase(appCodes.get(j)))
                 throw new InvalidEntry("Duplicate entries: " + fileCodes.get(i) + appCodes.get(j));
             }
+        }
+
+        // check if application exists in file-app and file-app-filetype table
+        for(int i=0; i<fileCodes.size(); i++) {
+            if(fileAppModelRepo.ifFileAppPresent(fileCodes.get(i), appCodes.get(i)) == 0L)
+            throw new EntryNotFound("Application doesn't exist: " + 
+                                    fileCodes.get(i) + appCodes.get(i));
+            
+            Long fileAppID = fileAppRepo.getFileAppID(fileCodes.get(i), appCodes.get(i));
+            List<FileAppFileTypeModel> fileApps = fileAppRepo.findAll().stream()
+                    .filter(obj -> obj.getFileAppID().equals(fileAppID))
+                    .collect(Collectors.toList());
+            if(fileApps.size()<1)
+            throw new EntryNotFound("Application does not have any file-type: " +
+                                    fileCodes.get(i) + appCodes.get(i));
         }
 
         // delete old account-app entries
