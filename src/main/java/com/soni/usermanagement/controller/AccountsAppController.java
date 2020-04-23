@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import com.soni.usermanagement.dto.AccountsAppRequest;
 import com.soni.usermanagement.dto.AccountsAppResponse;
 import com.soni.usermanagement.dto.ResponseMessage;
@@ -16,6 +18,7 @@ import com.soni.usermanagement.model.AccountsAppModel;
 import com.soni.usermanagement.model.AccountsModel;
 import com.soni.usermanagement.model.FileAppFileTypeModel;
 import com.soni.usermanagement.repository.AccountsAppRepo;
+import com.soni.usermanagement.repository.AccountsRepo;
 import com.soni.usermanagement.repository.FileAppRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +26,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +44,8 @@ public class AccountsAppController {
     private AccountsAppRepo repo;
     @Autowired
     private FileAppRepo fileAppRepo;
+    @Autowired
+    private AccountsRepo accountsRepo;
 
     final String uri = "http://localhost:8080/accounts";
 
@@ -72,48 +79,79 @@ public class AccountsAppController {
         List<String> fileCodes = new ArrayList<>();
         List<String> appCodes = new ArrayList<>();
 
-        if(newAccountApp.getApplication1() != null)
+        if(newAccountApp.getApplication1() != ""){
         fileCodes.add(newAccountApp.getApplication1().substring(0, 3));
-        appCodes.add(newAccountApp.getApplication1().substring(3));
+        appCodes.add(newAccountApp.getApplication1().substring(3));}
 
-        if(newAccountApp.getApplication2() != null)
+        if(newAccountApp.getApplication2() != ""){
         fileCodes.add(newAccountApp.getApplication2().substring(0, 3));
-        appCodes.add(newAccountApp.getApplication2().substring(3));
+        appCodes.add(newAccountApp.getApplication2().substring(3));}
 
-        if(newAccountApp.getApplication3() != null)
+        if(newAccountApp.getApplication3() != ""){
         fileCodes.add(newAccountApp.getApplication3().substring(0, 3));
-        appCodes.add(newAccountApp.getApplication3().substring(3));
+        appCodes.add(newAccountApp.getApplication3().substring(3));}
 
-        if(newAccountApp.getApplication4() != null)
+        if(newAccountApp.getApplication4() != ""){
         fileCodes.add(newAccountApp.getApplication4().substring(0, 3));
-        appCodes.add(newAccountApp.getApplication4().substring(3));
+        appCodes.add(newAccountApp.getApplication4().substring(3));}
         
-        if(newAccountApp.getApplication5() != null)
+        if(newAccountApp.getApplication5() != ""){
         fileCodes.add(newAccountApp.getApplication5().substring(0, 3));
-        appCodes.add(newAccountApp.getApplication5().substring(3));
+        appCodes.add(newAccountApp.getApplication5().substring(3));}
 
         // if no application specified
         if(fileCodes.size()<1 || appCodes.size()<1)
         throw new InvalidEntry("Specify at least one application");
 
-        // save the account in accounts table
+        // check for duplicate entries in fields
+        if(fileCodes.size()>1)
+        for(int i=0; i<fileCodes.size()-1; i++) {
+            for(int j=i+1; j<fileCodes.size(); j++) {
+                if( fileCodes.get(i).equalsIgnoreCase(fileCodes.get(j)) && 
+                    appCodes.get(i).equalsIgnoreCase(appCodes.get(j)))
+                throw new InvalidEntry("Duplicate entries: " + fileCodes.get(i) + appCodes.get(j));
+            }
+        }
+
+        // make an account object
         AccountsModel newAccount = new AccountsModel(
-            newAccountApp.getAccountCode(),
-            newAccountApp.getIban(),
-            newAccountApp.getBankCode(),
-            newAccountApp.getEntity()
-        );
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
-        HttpEntity<AccountsModel> request = new HttpEntity<>(newAccount, headers);
-        RestTemplate restTemplate = new RestTemplate();
-        AccountsModel account = restTemplate.postForObject(uri, request, AccountsModel.class);
+                newAccountApp.getAccountCode(),
+                newAccountApp.getIban(),
+                newAccountApp.getBankCode(),
+                newAccountApp.getEntity());
+
+        // save the account in accounts table
+        if(repo.ifAccountExists(newAccountApp.getAccountCode()) == 0) {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", token);
+            HttpEntity<AccountsModel> request = new HttpEntity<>(newAccount, headers);
+            RestTemplate restTemplate = new RestTemplate();
+            AccountsModel account = restTemplate.postForObject(uri, request, AccountsModel.class);
+        }
+
+        // count applications associated with account
+        Integer appsToBeAdded = fileCodes.size();
+        Integer appsAlreadyPresent = repo.countApplications(newAccountApp.getAccountCode());
+        System.out.println(appsAlreadyPresent);
+        if((appsToBeAdded + appsAlreadyPresent) > 5)
+        throw new InvalidEntry("Account cannot have more than 5 applications. " +
+                                "Apps already present = " + Integer.toString(appsAlreadyPresent));
+        
+        // if application already exists for the given account
+        for(int i=0; i<fileCodes.size(); i++) {
+            if(repo.ifFileAppExists(newAccountApp.getAccountCode(), 
+            fileCodes.get(i), 
+            appCodes.get(i)) == 1L)
+            throw new InvalidEntry("Application already exists for this account: "+
+                        fileCodes.get(i) + appCodes.get(i));  
+        }
 
         // save all combos in account-app table
-        for(int i=0; i<5; i++) {
+        for(int i=0; i<fileCodes.size(); i++) {
 
             // find id of file-app combo
-            Long fileAppID = fileAppRepo.getFileAppID(fileCodes.get(i), appCodes.get(i));
+            Long fileAppID = fileAppRepo.getFileAppID(fileCodes.get(i), appCodes.get(i));             
 
             // get all filetype combinations with given file-app
             List<FileAppFileTypeModel> fileApps = fileAppRepo.findAll().stream()
@@ -137,80 +175,102 @@ public class AccountsAppController {
             "New Account-App relation added"));
     }
 
-    // @DeleteMapping("/accountApps/{id}")
-    // public ResponseEntity<?> deleteAccountApp(@PathVariable("id") Long id) {
-
-    //     // find by account-app id
-    //     AccountsAppModel accountApp = repo.findById(id).orElse(null);
-    //     if (accountApp == null)
-    //     throw new EntryNotFound(Long.toString(id));
+    @DeleteMapping("/accountApps/{id}")
+    public ResponseEntity<?> deleteAccountApp(@PathVariable("id") Long id) {
         
-    //     // delete account
-    //     repo.deleteById(id);
+        AccountsAppModel account = repo.findById(id).orElse(null);
+        if(account == null)
+        throw new EntryNotFound("ID = " + Long.toString(id));
 
-    //     return ResponseEntity.ok(new ResponseMessage(
-    //         "AccountApp deleted: " + Long.toString(id)));
-    // }
+        // delete account
+        List<AccountsAppModel> accountApps = repo.findAllByAccountCode(account.getAccountCode());
+        for(AccountsAppModel accountApp: accountApps) {
+            repo.deleteById(accountApp.getId());
+        }
 
-    // @PutMapping("/accountApps/{id}")
-    // public ResponseEntity<?> updateAccountApp(@Valid @RequestBody AccountsAppRequest newAccountApp, @PathVariable("id") Long id) {
+        // delete in accounts table
+        AccountsModel accountsModel = accountsRepo.findByAccountCode(account.getAccountCode()).orElse(null);
+        accountsRepo.deleteById(accountsModel.getId());
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "AccountApp deleted: " + Long.toString(id)));
+    }
+
+    @PutMapping("/accountApps/{accountCode}")
+    public ResponseEntity<?> updateAccountApp(@Valid @RequestBody AccountsAppRequest newAccountApp, 
+                                                @PathVariable("accountCode") String accountCode,
+                                                Principal principal) {
         
-    //     // find by account-app id
-    //     AccountsAppModel accountApp = repo.findById(id).orElse(null);
-    //     if (accountApp == null)
-    //     throw new EntryNotFound(Long.toString(id));
+        // get all file, app codes
+        List<String> fileCodes = new ArrayList<>();
+        List<String> appCodes = new ArrayList<>();
 
-    //     // check if account id exists in accounts
-    //     AccountsModel account = accountsRepo.findById(newAccountApp.getAccountID()).orElse(null);
-    //     if(account == null)
-    //     throw new EntryNotFound("Account ID does not exist in accounts table");
+        if(newAccountApp.getApplication1() != ""){
+            fileCodes.add(newAccountApp.getApplication1().substring(0, 3));
+            appCodes.add(newAccountApp.getApplication1().substring(3));}
 
-    //     // get all file-app-filetype combinations
-    //     List<FileAppResponse> fileApps = fileAppRepo.getInnerJoinData();
-    //     // find file-app-filetype combo
-    //     FileAppResponse fileApp = fileApps.stream()
-    //         .filter(obj -> obj.getFileCode().equals(newAccountApp.getFileCode())
-    //                     && obj.getAppCode().equals(newAccountApp.getApplicationCode())
-    //                     && obj.getFileTypeCode().equals(newAccountApp.getFileTypeCode()))
-    //         .findAny()
-    //         .orElse(null);
+        if(newAccountApp.getApplication2() != ""){
+        fileCodes.add(newAccountApp.getApplication2().substring(0, 3));
+        appCodes.add(newAccountApp.getApplication2().substring(3));}
 
-    //     if(fileApp == null)
-    //     throw new EntryNotFound("file-app-filetype combination is not valid.");
+        if(newAccountApp.getApplication3() != ""){
+        fileCodes.add(newAccountApp.getApplication3().substring(0, 3));
+        appCodes.add(newAccountApp.getApplication3().substring(3));}
 
-    //     // account and file-app-filetype combo should not exist already
-    //     AccountsAppModel demoAccountApp = repo.findByAccountFileAppCombo(
-    //         account.getId(), fileApp.getId()).orElse(null);
-
-    //     // throw error accountApp already exists
-    //     if(demoAccountApp != null && !demoAccountApp.getId().equals(accountApp.getId())) 
-    //     throw new EntryAlreadyExists(
-    //         "Account-App combination already exists with ID: ",
-    //         Long.toString(demoAccountApp.getId()));
+        if(newAccountApp.getApplication4() != ""){
+        fileCodes.add(newAccountApp.getApplication4().substring(0, 3));
+        appCodes.add(newAccountApp.getApplication4().substring(3));}
         
-    //     // check for application count for one account
-    //     if(newAccountApp.getAccountID() != accountApp.getAccountID()) {
-    //         if(repo.findApplicationCount(newAccountApp.getAccountID()) >= 5)
-    //         throw new InvalidEntry("Account ID cannot have more than 5 application relations");
-    //     }
+        if(newAccountApp.getApplication5() != ""){
+        fileCodes.add(newAccountApp.getApplication5().substring(0, 3));
+        appCodes.add(newAccountApp.getApplication5().substring(3));}
+        
 
-    //     // update the account-app entry
-    //     accountApp.setAccountID(account.getId());
-    //     accountApp.setFileAppID(fileApp.getId());
-    //     if(UserManagement.getLastUpdatedDate() == null) {
-    //         accountApp.setLastUpdatedUserEmail(repo.findLastUpdatedDetails().getLastUpdatedUserEmail());
-    //         accountApp.setLastUpdatedDate(repo.findLastUpdatedDetails().getLastUpdatedDate());
-    //     }
-    //     else {
-    //         accountApp.setLastUpdatedUserEmail(UserManagement.getLastUpdatedUserEmail());
-    //         accountApp.setLastUpdatedDate(UserManagement.getLastUpdatedDate());
-    //     }
+        // if no application specified
+        if(fileCodes.size()<1 || appCodes.size()<1)
+        throw new InvalidEntry("Specify at least one application");
 
-    //     // save the new entry
-    //     repo.save(accountApp);
+        // check for duplicate entries in fields
+        for(int i=0; i<fileCodes.size()-1; i++) {
+            for(int j=i+1; j<fileCodes.size(); j++) {
+                if( fileCodes.get(i).equalsIgnoreCase(fileCodes.get(j)) && 
+                    appCodes.get(i).equalsIgnoreCase(appCodes.get(j)))
+                throw new InvalidEntry("Duplicate entries: " + fileCodes.get(i) + appCodes.get(j));
+            }
+        }
 
-    //     return ResponseEntity.ok(new ResponseMessage(
-    //         "AccountApp updated: " + Long.toString(id)));
-    // }
+        // delete old account-app entries
+        List<AccountsAppModel> accountApps = repo.findAllByAccountCode(accountCode);
+        for(AccountsAppModel accountApp: accountApps) {
+            repo.deleteById(accountApp.getId());
+        }
+
+        // save all combos in account-app table
+        for(int i=0; i<fileCodes.size(); i++) {
+
+            // find id of file-app combo
+            Long fileAppID = fileAppRepo.getFileAppID(fileCodes.get(i), appCodes.get(i));             
+
+            // get all filetype combinations with given file-app
+            List<FileAppFileTypeModel> fileApps = fileAppRepo.findAll().stream()
+                    .filter(obj -> obj.getFileAppID().equals(fileAppID))
+                    .collect(Collectors.toList());
+
+            for(FileAppFileTypeModel fileApp: fileApps) {
+
+                repo.save(new AccountsAppModel(
+                    newAccountApp.getAccountCode(),               // account code
+                    fileApp.getId(),                        // file-app ID
+                    newAccountApp.getFormat(),              // format
+                    principal.getName(),                    // last updated user
+                    LocalDate.now().toString() + 
+                    " at " + LocalTime.now().toString()     // last updated date 
+                ));
+            }
+        }
+
+        return ResponseEntity.ok(new ResponseMessage(
+            "Account-App updated"));
+    }
 
 }
