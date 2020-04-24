@@ -27,6 +27,12 @@ public class ContactManagement {
     @Column(name = "contacts")
     private String contacts;
 
+    @Column(name = "last_updated_user")
+    private String lastUpdatedUserEmail;
+
+    @Column(name = "last_updated_date")
+    private String lastUpdatedDate;
+
     public Long getId() {
         return id;
     }
@@ -65,6 +71,36 @@ public class ContactManagement {
 
     public void setContacts(String contacts) {
         this.contacts = contacts;
+    }
+
+    public String getLastUpdatedUserEmail() {
+        return lastUpdatedUserEmail;
+    }
+
+    public void setLastUpdatedUserEmail(String lastUpdatedUserEmail) {
+        this.lastUpdatedUserEmail = lastUpdatedUserEmail;
+    }
+
+    public String getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
+
+    public void setLastUpdatedDate(String lastUpdatedDate) {
+        this.lastUpdatedDate = lastUpdatedDate;
+    }
+
+    public ContactManagement() {
+    }
+
+    public ContactManagement(Long id, String appCode, String fileCode, String fileTypeCode, String contacts,
+            String lastUpdatedUserEmail, String lastUpdatedDate) {
+        this.id = id;
+        this.appCode = appCode;
+        this.fileCode = fileCode;
+        this.fileTypeCode = fileTypeCode;
+        this.contacts = contacts;
+        this.lastUpdatedUserEmail = lastUpdatedUserEmail;
+        this.lastUpdatedDate = lastUpdatedDate;
     }
 
 }   

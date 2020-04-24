@@ -1,14 +1,19 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import com.soni.usermanagement.dto.ContactManagementRequest;
 import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.exception.MethodNotAccepted;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
@@ -53,7 +58,8 @@ public class ContactManagementController {
     }
 
     @PostMapping("/contacts")
-    public ResponseEntity<?> addContact(@Valid @RequestBody ContactManagement newContact) {
+    public ResponseEntity<?> addContact(@Valid @RequestBody ContactManagementRequest newContact,
+                                            Principal principal) {
 
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newContact.getContacts().split(";[ ]*"));
@@ -81,17 +87,26 @@ public class ContactManagementController {
             "File-app-filetype combination already exists with id: ", Long.toString(contact.getId()));
 
         // save new contact
-        repo.save(newContact);
+        contact = new ContactManagement(
+            newContact.getId(),
+            newContact.getAppCode(),
+            newContact.getFileCode(),
+            newContact.getFileTypeCode(),
+            newContact.getContacts(),
+            principal.getName(),
+            LocalDate.now().toString() + " at " + LocalTime.now().toString()
+        );
+        repo.save(contact);
 
         // save file-app combo
         if(fileAppModelRepo.ifFileAppPresent(
-            newContact.getFileCode(), newContact.getAppCode()) == 0L)
-        fileAppModelRepo.save(new FileAppModel(newContact.getFileCode(),newContact.getAppCode()));
+            contact.getFileCode(), contact.getAppCode()) == 0L)
+        fileAppModelRepo.save(new FileAppModel(contact.getFileCode(),contact.getAppCode()));
         
         // save file-app-filetype combo
-        Long fileAppID = fileAppRepo.getFileAppID(newContact.getFileCode(),newContact.getAppCode());
-        if(fileAppRepo.ifComboPresent(fileAppID, newContact.getFileTypeCode()) == 0L)
-        fileAppRepo.save(new FileAppFileTypeModel(fileAppID, newContact.getFileTypeCode()));
+        Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
+        if(fileAppRepo.ifComboPresent(fileAppID, contact.getFileTypeCode()) == 0L)
+        fileAppRepo.save(new FileAppFileTypeModel(fileAppID, contact.getFileTypeCode()));
 
         return ResponseEntity.ok(new ResponseMessage(
             "New Contact added"));
@@ -99,7 +114,9 @@ public class ContactManagementController {
 
     @DeleteMapping("/contacts/{id}")
     public ResponseEntity<?> deleteContact(@PathVariable("id") Long id) {
-        
+    
+        int flag = 0;       // to check for error
+
         // checking existense of contact
         ContactManagement contact = repo.findById(id).orElse(null);
         if(contact == null) throw new EntryNotFound(Long.toString(id));
@@ -110,10 +127,13 @@ public class ContactManagementController {
             Long fileAppFileTypeID = fileAppRepo.getFileAppFileTypeID(fileAppID, contact.getFileTypeCode());
             fileAppRepo.deleteById(fileAppFileTypeID);
         } catch (Exception e) {
-            throw new MethodNotAccepted("Cannot delete. This entry is in use in another table.");
+            flag = 1;
         }
 
         // finally delete contact
+        if(flag == 1)
+        throw new MethodNotAccepted("Cannot delete. This entry is in use in another table.");
+
         repo.deleteById(id);
 
         return ResponseEntity.ok(new ResponseMessage(
@@ -121,11 +141,18 @@ public class ContactManagementController {
     }
 
     @PutMapping("/contacts/{id}")
-    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagement newContact, @PathVariable("id") Long id) {
+    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagementRequest newContact, 
+                                            @PathVariable("id") Long id,
+                                            Principal principal) {
         
         // checking Contact existence
         ContactManagement contact = repo.findById(id).orElse(null);
         if(contact == null) throw new EntryNotFound(Long.toString(id));
+
+        // file code and app code should be same
+        if(!contact.getFileCode().equalsIgnoreCase(newContact.getFileCode()) || 
+            !contact.getAppCode().equalsIgnoreCase(newContact.getAppCode()))
+        throw new InvalidEntry("Not allowed to update fileCode and appCode");
 
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newContact.getContacts().split(";[ ]*"));
@@ -136,8 +163,8 @@ public class ContactManagementController {
         List<ContactManagement> contacts = repo.findAll();
         // find file-app-filetype combo
         ContactManagement existingContact = contacts.stream()
-            .filter(obj -> obj.getFileCode().equals(contact.getFileCode())
-                        && obj.getAppCode().equals(contact.getAppCode())
+            .filter(obj -> obj.getFileCode().equals(newContact.getFileCode())
+                        && obj.getAppCode().equals(newContact.getAppCode())
                         && obj.getFileTypeCode().equals(newContact.getFileTypeCode()))
             .findAny()
             .orElse(null);
@@ -148,7 +175,7 @@ public class ContactManagementController {
             "File-app-filetype combination already exists with id: ", 
             Long.toString(existingContact.getId()));
 
-        // try deleteing old file-app-filetype combo
+        // try deleting old file-app-filetype combo
         try {
             Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
             Long fileAppFileTypeID = fileAppRepo.getFileAppFileTypeID(fileAppID, contact.getFileTypeCode());
@@ -156,11 +183,13 @@ public class ContactManagementController {
         } catch (Exception e) {
             throw new MethodNotAccepted("Contact can't be updated, it is in use in another table.");
         }
-        repo.deleteById(contact.getId());
+        // repo.deleteById(contact.getId());
 
         // updating values
         contact.setFileTypeCode(newContact.getFileTypeCode());
         contact.setContacts(newContact.getContacts());
+        contact.setLastUpdatedUserEmail(principal.getName());
+        contact.setLastUpdatedDate(LocalDate.now().toString() + " at " + LocalTime.now().toString());
         repo.save(contact);
 
         // add new file-app-filetype combo
