@@ -9,7 +9,7 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
-import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.MethodNotAccepted;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
 import com.soni.usermanagement.model.FileAppFileTypeModel;
@@ -104,18 +104,17 @@ public class ContactManagementController {
         ContactManagement contact = repo.findById(id).orElse(null);
         if(contact == null) throw new EntryNotFound(Long.toString(id));
 
-        // finally delete contact
-        repo.deleteById(id);
-
         // delete file-app-filetype combo
         try {
             Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
             Long fileAppFileTypeID = fileAppRepo.getFileAppFileTypeID(fileAppID, contact.getFileTypeCode());
             fileAppRepo.deleteById(fileAppFileTypeID);
         } catch (Exception e) {
-            //rollback changes in contact management
-            repo.save(contact);
+            throw new MethodNotAccepted("Cannot delete. This entry is in use in another table.");
         }
+
+        // finally delete contact
+        repo.deleteById(id);
 
         return ResponseEntity.ok(new ResponseMessage(
             "Contact deleted: " + contact.getId()));
@@ -150,16 +149,14 @@ public class ContactManagementController {
             Long.toString(existingContact.getId()));
 
         // try deleteing old file-app-filetype combo
-        repo.deleteById(contact.getId());
         try {
             Long fileAppID = fileAppRepo.getFileAppID(contact.getFileCode(),contact.getAppCode());
             Long fileAppFileTypeID = fileAppRepo.getFileAppFileTypeID(fileAppID, contact.getFileTypeCode());
             fileAppRepo.deleteById(fileAppFileTypeID);
         } catch (Exception e) {
-            // save rollback
-            repo.save(contact);
-            throw new InvalidEntry("Contact can't be updated, it is in use in another table.");
+            throw new MethodNotAccepted("Contact can't be updated, it is in use in another table.");
         }
+        repo.deleteById(contact.getId());
 
         // updating values
         contact.setFileTypeCode(newContact.getFileTypeCode());

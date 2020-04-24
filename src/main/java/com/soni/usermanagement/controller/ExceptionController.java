@@ -7,6 +7,7 @@ import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.MethodNotAccepted;
 import com.soni.usermanagement.exception.PasswordNotValid;
 
 import org.springframework.http.HttpHeaders;
@@ -30,7 +31,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({PasswordNotValid.class, EmailNotValidException.class, InvalidEntry.class})
+    @ExceptionHandler({PasswordNotValid.class, EmailNotValidException.class, InvalidEntry.class, MethodNotAccepted.class})
     public ResponseEntity<Object> invalidEntryHandler(Exception ex, WebRequest request) {
 
         ResponseMessage responseMessage = new ResponseMessage(
