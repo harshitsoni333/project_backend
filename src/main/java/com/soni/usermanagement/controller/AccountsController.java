@@ -119,17 +119,21 @@ public class AccountsController {
         if(account == null)
             throw new EntryNotFound(keyword);
 
+        // acount code should not be updated
+        if(!account.getAccountCode().equalsIgnoreCase(newAccount.getAccountCode()))
+        throw new InvalidEntry("Account code is not allowed to be changed");
+
         // validate newAccount's constraints
         if (!AccountValidator.validateAccount(newAccount))
             throw new InvalidEntry("Check the new contents again");
 
         // checking for duplicate entry by accountCode
-        AccountsModel obj = repo.findByAccountCode(newAccount.getAccountCode()).orElse(null);
-        if(obj != null && !obj.getAccountCode().equals(account.getAccountCode()))
-        throw new EntryAlreadyExists(obj.getAccountCode(), obj.getIban());
+        // AccountsModel obj = repo.findByAccountCode(newAccount.getAccountCode()).orElse(null);
+        // if(obj != null && !obj.getAccountCode().equals(account.getAccountCode()))
+        // throw new EntryAlreadyExists(obj.getAccountCode(), obj.getIban());
 
         // checking for duplicate iban
-        obj = repo.findByIban(newAccount.getIban()).orElse(null);
+        AccountsModel obj = repo.findByIban(newAccount.getIban()).orElse(null);
         if(obj != null && !obj.getIban().equals(account.getIban()))
         throw new EntryAlreadyExists(obj.getAccountCode(), obj.getIban());
 
@@ -138,7 +142,6 @@ public class AccountsController {
         if(bank == null)
         throw new EntryNotFound("bankCode does not exist in banks = " + newAccount.getBankCode().toString());
 
-        account.setAccountCode(newAccount.getAccountCode());
         account.setIban(newAccount.getIban());
         account.setBankCode(newAccount.getBankCode());
         account.setEntity(newAccount.getEntity());

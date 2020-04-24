@@ -4,7 +4,9 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -217,7 +219,8 @@ public class AccountsAppController {
     @PutMapping("/accountApps/{accountCode}")
     public ResponseEntity<?> updateAccountApp(@Valid @RequestBody AccountsAppRequest newAccountApp, 
                                                 @PathVariable("accountCode") String accountCode,
-                                                Principal principal) {
+                                                Principal principal,
+                                                @RequestHeader(name = "Authorization") String token) {
         
         // get all file, app codes
         List<String> fileCodes = new ArrayList<>();
@@ -272,6 +275,25 @@ public class AccountsAppController {
                                     fileCodes.get(i) + appCodes.get(i));
         }
 
+        // make an account object
+        AccountsModel newAccount = new AccountsModel(
+                newAccountApp.getAccountCode(),
+                newAccountApp.getIban(),
+                newAccountApp.getBankCode(),
+                newAccountApp.getEntity());
+        
+        // update the account in accounts table
+        // try {
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", token);
+            HttpEntity<AccountsModel> request = new HttpEntity<>(newAccount, headers);
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.put(uri + "/" + newAccount.getAccountCode(), request);
+        // } catch (Exception e) {
+        //     throw new InvalidEntry(e.getLocalizedMessage());
+        // }
+        
         // delete old account-app entries
         List<AccountsAppModel> accountApps = repo.findAllByAccountCode(accountCode);
         for(AccountsAppModel accountApp: accountApps) {
