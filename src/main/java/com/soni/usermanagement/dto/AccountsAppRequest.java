@@ -6,8 +6,6 @@ public class AccountsAppRequest {
     private String iban;
     private String bankCode;
     private String entity;
-    
-    private String format;
 
     private String application1;
     private String application2;
@@ -45,14 +43,6 @@ public class AccountsAppRequest {
 
     public void setEntity(String entity) {
         this.entity = entity;
-    }
-
-    public String getFormat() {
-        return format;
-    }
-
-    public void setFormat(String format) {
-        this.format = format;
     }
 
     public String getApplication1() {

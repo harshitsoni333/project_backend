@@ -36,8 +36,5 @@ public interface AccountsAppResponse {
 
     @Value("#{target.app_code}")
     public String getApplicationCode();
-
-    @Value("#{target.file_type_code}")
-    public String getFileTypeCode();
     
 }

@@ -181,7 +181,7 @@ public class AccountsAppController {
                 repo.save(new AccountsAppModel(
                     newAccount.getAccountCode(),               // account code
                     fileApp.getId(),                        // file-app ID
-                    newAccountApp.getFormat(),              // format
+                    fileApp.getFileTypeCode(),              // format
                     principal.getName(),                    // last updated user
                     LocalDate.now().toString() + 
                     " at " + LocalTime.now().toString()     // last updated date 
@@ -294,7 +294,7 @@ public class AccountsAppController {
                 repo.save(new AccountsAppModel(
                     newAccountApp.getAccountCode(),               // account code
                     fileApp.getId(),                        // file-app ID
-                    newAccountApp.getFormat(),              // format
+                    fileApp.getFileTypeCode(),              // format
                     principal.getName(),                    // last updated user
                     LocalDate.now().toString() + 
                     " at " + LocalTime.now().toString()     // last updated date 
