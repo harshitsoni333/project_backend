@@ -10,6 +10,7 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
+import com.soni.usermanagement.repository.AccountsAppRepo;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 import com.soni.usermanagement.services.EmailService;
 import com.soni.usermanagement.services.ExcelExportService;
@@ -30,6 +31,8 @@ public class ExcelExportController {
     private ContactManagementRepo repo;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private AccountsAppRepo accountsAppRepo;
 
     // @GetMapping("/exportExcel")
     // public void downloadCsv(HttpServletResponse response) throws IOException {
@@ -40,8 +43,8 @@ public class ExcelExportController {
     //     IOUtils.copy(stream, response.getOutputStream());
     //}
 
-    @PostMapping("/emailExcel")
-    public ResponseEntity<?> emailCSV(@RequestBody String sendList, HttpServletResponse response) throws IOException {
+    @PostMapping("/emailContacts")
+    public ResponseEntity<?> emailContacts(@RequestBody String sendList, HttpServletResponse response) throws IOException {
 
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment; filename=ContactManagement.xlsx");
@@ -63,6 +66,32 @@ public class ExcelExportController {
         }
 
         return ResponseEntity.ok(new ResponseMessage("An email has been sent with the details."));
+    }
+
+    @PostMapping("/emailAccountApps")
+    public ResponseEntity<?> emailAccountApps(@RequestBody String sendList,
+    HttpServletResponse response) throws IOException {
+
+        response.setContentType("application/octet-stream");
+        response.setHeader("Content-Disposition", "attachment: filename=AccountApps.xlsx");
+        String filePath = ExcelExportService.accountAppListToExcel(accountsAppRepo.getInnerJoin());
+
+        // validate all emails
+        List<String> emails = Arrays.asList(sendList.split(",[ ]*"));
+        for(String email: emails) 
+        if (!EmailValidation.emailValidator(email)) throw new EmailNotValidException(email);
+
+        // send emails to all recipients
+        for(String email: emails) {
+            emailService.sendMailWithAttachment(
+                email, 
+                EmailMessage.makeSubjectFor("exportExcel", email), 
+                "Sending you the excel file as requested. \n\n" +
+                "Hope you have a great day ahead. \nBest regards. \nTeam SUP",
+                filePath);
+        }
+
+        return ResponseEntity.ok(new ResponseMessage("An email has been sent with the requested attachment."));
     }
     
 }
