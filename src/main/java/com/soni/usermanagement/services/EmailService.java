@@ -47,7 +47,7 @@ public class EmailService {
                 
                 FileSystemResource file = new FileSystemResource(fileToAttach);
                 MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-                helper.addAttachment("contacts.xlsx", file);
+                helper.addAttachment("attachment.xlsx", file);
                 helper.setText(body);
             }
         };
