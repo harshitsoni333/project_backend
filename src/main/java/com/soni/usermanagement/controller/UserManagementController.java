@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.EmailMessage;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.methods.PasswordEncoder;
@@ -42,12 +44,25 @@ public class UserManagementController {
     private EmailService emailService;
 
     @GetMapping("/users")
-    public List<UserManagement> getAllUsers() {
+    public List<UserManagement> getAllUsers(Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = repo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+
         return repo.findAll();
     }
 
     @PostMapping(path = "/users", consumes = "application/json")
-    public ResponseEntity<?> addUser(@RequestBody UserManagement newUser) {
+    public ResponseEntity<?> addUser(@RequestBody UserManagement newUser, Principal principal) {
+            
+        // checking authorization
+        UserManagement userManagement = repo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         String email = newUser.getEmail();
 
@@ -89,8 +104,16 @@ public class UserManagementController {
     }
 
     @PutMapping(path="/users/{email}", consumes = "application/json")
-    public ResponseEntity<?> updateUser(@Valid @RequestBody UserManagement newUser, @PathVariable("email") String email) {
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UserManagement newUser, 
+    @PathVariable("email") String email,
+    Principal principal) {
         
+        // checking authorization
+        UserManagement userManagement = repo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+
         // get the existing user
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) throw new EntryNotFound(email);
@@ -132,15 +155,27 @@ public class UserManagementController {
     }
 
     @GetMapping("/users/{email}")
-    public UserManagement getUser(@PathVariable("email") String email) {
+    public UserManagement getUser(@PathVariable("email") String email, Principal principal) {
         
+        // checking authorization
+        UserManagement userManagement = repo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+
         UserManagement user = repo.findByEmail(email).orElse(null);
         if(user == null) throw new EntryNotFound(email);
         return user;
     }
 
     @DeleteMapping("/users/{email}")
-    public ResponseEntity<?> deleteUser(@PathVariable("email") String email) {
+    public ResponseEntity<?> deleteUser(@PathVariable("email") String email, Principal principal) {
+        
+        // checking authorization
+        UserManagement userManagement = repo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // checking user existence
         UserManagement user = repo.findByEmail(email).orElse(null);

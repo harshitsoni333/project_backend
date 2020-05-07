@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,9 +10,12 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.FileManagement;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.FileManagementRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,8 @@ public class FileManagementController {
 
     @Autowired
     private FileManagementRepo repo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/files")
     public List<FileManagement> getAllFiles() {
@@ -37,7 +43,14 @@ public class FileManagementController {
     }
 
     @PostMapping(path="/files", consumes = "application/json")
-    public ResponseEntity<?> addFile(@RequestBody FileManagement newFile) {
+    public ResponseEntity<?> addFile(@RequestBody FileManagement newFile, Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newFile.getContacts().split(";[ ]*"));
@@ -54,7 +67,15 @@ public class FileManagementController {
     }
 
     @PutMapping(path = "/files/{fileCode}", consumes = "application/json")
-    public ResponseEntity<?> updateFile(@Valid @RequestBody FileManagement newFile, @PathVariable("fileCode") String fileCode) {
+    public ResponseEntity<?> updateFile(@Valid @RequestBody FileManagement newFile, 
+    @PathVariable("fileCode") String fileCode, Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
         if(file == null) throw new EntryNotFound(fileCode);
@@ -88,7 +109,15 @@ public class FileManagementController {
     }
 
     @DeleteMapping("/files/{fileCode}")
-    public ResponseEntity<?> deleteFile(@PathVariable("fileCode") String fileCode) {
+    public ResponseEntity<?> deleteFile(@PathVariable("fileCode") String fileCode, 
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         FileManagement file = repo.findByFileCode(fileCode).orElse(null);
         if(file == null) throw new EntryNotFound(fileCode);

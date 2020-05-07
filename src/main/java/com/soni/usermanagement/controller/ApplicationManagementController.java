@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,9 +10,12 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ApplicationManagement;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.ApplicationManagementRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,7 @@ public class ApplicationManagementController {
 
     @Autowired
     private ApplicationManagementRepo repo;
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/applications")
     public List<ApplicationManagement> getAllApplications() {
@@ -44,7 +49,15 @@ public class ApplicationManagementController {
     }
 
     @PostMapping("/applications")
-    public ResponseEntity<?> addApplication(@RequestBody ApplicationManagement newApplication) {
+    public ResponseEntity<?> addApplication(@RequestBody ApplicationManagement newApplication,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newApplication.getContacts().split(";[ ]*"));
@@ -64,7 +77,15 @@ public class ApplicationManagementController {
     }
 
     @DeleteMapping("/applications/{applicationCode}")
-    public ResponseEntity<?> deleteApplication(@PathVariable("applicationCode") String applicationCode) {
+    public ResponseEntity<?> deleteApplication(@PathVariable("applicationCode") String applicationCode,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
         if(application == null) throw new EntryNotFound(applicationCode);
@@ -76,7 +97,17 @@ public class ApplicationManagementController {
     }
 
     @PutMapping("/applications/{applicationCode}")
-    public ResponseEntity<?> updateApplication(@Valid @RequestBody ApplicationManagement newApplication, @PathVariable("applicationCode") String applicationCode) {
+    public ResponseEntity<?> updateApplication(@Valid @RequestBody ApplicationManagement newApplication, 
+    @PathVariable("applicationCode") String applicationCode,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+        
         ApplicationManagement application = repo.findByApplicationCode(applicationCode).orElse(null);
 
         if(application == null)

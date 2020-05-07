@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -8,9 +9,12 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.FileTypeValidator;
 import com.soni.usermanagement.model.FileTypeManagement;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.FileTypeManagementRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +33,8 @@ public class FileTypeManagementController {
 
     @Autowired
     private FileTypeManagementRepo repo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/fileTypes")
     public List<FileTypeManagement> getAllFileTypes() {
@@ -43,7 +49,15 @@ public class FileTypeManagementController {
     }
 
     @PostMapping("/fileTypes")
-    public ResponseEntity<?> addFileType(@Valid @RequestBody FileTypeManagement newFileType) {
+    public ResponseEntity<?> addFileType(@Valid @RequestBody FileTypeManagement newFileType,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         if(FileTypeValidator.validateFileType(newFileType)) {
 
@@ -61,7 +75,15 @@ public class FileTypeManagementController {
     }
 
     @DeleteMapping("/fileTypes/{fileTypeCode}")
-    public ResponseEntity<?> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode) {
+    public ResponseEntity<?> deleteFileType(@PathVariable("fileTypeCode") String fileTypeCode,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // checking existense of fileType
         FileTypeManagement fileType = repo.findByFileTypeCode(fileTypeCode).orElse(null);
@@ -73,7 +95,15 @@ public class FileTypeManagementController {
     }
 
     @PutMapping("/fileTypes/{fileTypeCode}")
-    public ResponseEntity<?> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, @PathVariable("fileTypeCode") String fileTypeCode) {
+    public ResponseEntity<?> updateFileType(@Valid @RequestBody FileTypeManagement newFileType, 
+    @PathVariable("fileTypeCode") String fileTypeCode, Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // checking file type existence and deleting
         FileTypeManagement fileType = repo.findByFileTypeCode(fileTypeCode).orElse(null);

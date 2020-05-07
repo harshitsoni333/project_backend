@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,9 +10,12 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EmailNotValidException;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.BankManagement;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.BankManagementRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,8 @@ public class BankManagementController {
 
     @Autowired
     private BankManagementRepo repo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/banks")
     public List<BankManagement> getAllBanks() {
@@ -44,7 +50,15 @@ public class BankManagementController {
     }
 
     @PostMapping("/banks")
-    public ResponseEntity<?> addBank(@RequestBody BankManagement newBank) {
+    public ResponseEntity<?> addBank(@RequestBody BankManagement newBank,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         // checking for invalid e-mails
         List<String> contacts = Arrays.asList(newBank.getContacts().split(";[ ]*"));
@@ -62,7 +76,15 @@ public class BankManagementController {
     }
 
     @DeleteMapping("/banks/{bankCode}")
-    public ResponseEntity<?> deleteBank(@PathVariable("bankCode") String bankCode) {
+    public ResponseEntity<?> deleteBank(@PathVariable("bankCode") String bankCode,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new EntryNotFound(bankCode);
@@ -73,7 +95,16 @@ public class BankManagementController {
     }
 
     @PutMapping("/banks/{bankCode}")
-    public ResponseEntity<?> updateBank(@Valid @RequestBody BankManagement newBank, @PathVariable("bankCode") String bankCode) {
+    public ResponseEntity<?> updateBank(@Valid @RequestBody BankManagement newBank, 
+    @PathVariable("bankCode") String bankCode,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         BankManagement bank = repo.findByBankCode(bankCode).orElse(null);
         if(bank == null) throw new EntryNotFound(bankCode);

@@ -15,13 +15,16 @@ import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.exception.MethodNotAccepted;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.EmailValidation;
 import com.soni.usermanagement.model.ContactManagement;
 import com.soni.usermanagement.model.FileAppFileTypeModel;
 import com.soni.usermanagement.model.FileAppModel;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.ContactManagementRepo;
 import com.soni.usermanagement.repository.FileAppModelRepo;
 import com.soni.usermanagement.repository.FileAppRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +47,8 @@ public class ContactManagementController {
     private FileAppModelRepo fileAppModelRepo;
     @Autowired
     private FileAppRepo fileAppRepo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/contacts")
     public List<ContactManagement> getAllContacts() {
@@ -59,8 +64,15 @@ public class ContactManagementController {
 
     @PostMapping("/contacts")
     public ResponseEntity<?> addContact(@Valid @RequestBody ContactManagementRequest newContact,
-                                            Principal principal) {
-
+    Principal principal) {
+        
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+        
         // CHECKING for INVALID E-MAILS
         List<String> emails = Arrays.asList(newContact.getContacts().split(";[ ]*"));
         for(String i: emails) 
@@ -113,11 +125,19 @@ public class ContactManagementController {
     }
 
     @DeleteMapping("/contacts/{id}")
-    public ResponseEntity<?> deleteContact(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteContact(@PathVariable("id") Long id,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
     
         int flag = 0;       // to check for error
 
-        // checking existense of contact
+        // checking existence of contact
         ContactManagement contact = repo.findById(id).orElse(null);
         if(contact == null) throw new EntryNotFound(Long.toString(id));
 
@@ -141,9 +161,16 @@ public class ContactManagementController {
     }
 
     @PutMapping("/contacts/{id}")
-    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagementRequest newContact, 
-                                            @PathVariable("id") Long id,
-                                            Principal principal) {
+    public ResponseEntity<?> updateContact(@Valid @RequestBody ContactManagementRequest newContact,
+    @PathVariable("id") Long id,
+    Principal principal) {
+        
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // checking Contact existence
         ContactManagement contact = repo.findById(id).orElse(null);

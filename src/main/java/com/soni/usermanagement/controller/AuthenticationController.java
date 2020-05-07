@@ -2,7 +2,12 @@ package com.soni.usermanagement.controller;
 
 import com.soni.usermanagement.dto.AuthenticationRequest;
 import com.soni.usermanagement.dto.AuthenticationResponse;
+import com.soni.usermanagement.dto.ResponseMessage;
+import com.soni.usermanagement.exception.PasswordNotValid;
+import com.soni.usermanagement.methods.EmailMessage;
+import com.soni.usermanagement.methods.PasswordGenerator;
 import com.soni.usermanagement.security.JwtTokenUtil;
+import com.soni.usermanagement.services.EmailService;
 import com.soni.usermanagement.services.MyUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +30,11 @@ public class AuthenticationController {
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
     private MyUserDetailsService userDetailsService;
-    // @Autowired
-    // private AuthenticationManager authenticationManager;
+    @Autowired
+    private EmailService emailService;
+
+    static String softToken;
+    static String jwt;
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -53,9 +61,29 @@ public class AuthenticationController {
             throw new Exception("Incorrect username or password", e);            
         }
 
-        final String jwt = jwtTokenUtil.generateToken(userDetails);
+        jwt = jwtTokenUtil.generateToken(userDetails);
+
+        // sending a soft token
+        softToken = PasswordGenerator.generatePassword();
+        emailService.sendMail(
+            userDetails.getUsername(), 
+            EmailMessage.makeSubjectFor("soft token", userDetails.getUsername()), 
+            EmailMessage.makePasswordMessageFor(
+                "soft token", 
+                softToken, 
+                userDetails.getUsername(),
+                userDetails.getPassword()));
+
+        return ResponseEntity.ok(new ResponseMessage("An OTP has been sent to your email ID"));
+    }
+    
+    @PostMapping("/authenticateOTP")
+    public ResponseEntity<?> verifyAuthenticationToken(@RequestBody String enteredSoftToken) {
+
+        if(!softToken.equals(enteredSoftToken)) {
+            throw new PasswordNotValid("OTP is wrong: " + enteredSoftToken);
+        }
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
-    
 }

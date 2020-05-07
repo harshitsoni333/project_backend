@@ -18,6 +18,7 @@ public class EmailMessage {
             case "changePassword": return("Your password has been changed!");
             case "forgotPassword": return ("Your password has been reset");
             case "exportExcel": return("Here is your requested file");
+            case "soft token": return("Team SUP - Two Factor Authentication");
 
             default: return("Sample Default Subject");
         }
@@ -121,7 +122,14 @@ public class EmailMessage {
                         
                         name, userName, password)
                 );
-            
+            case "soft token":
+                return(
+                    String.format(
+                        "Please verify it is you. \n Here is your OTP: %s\n\n" +
+                        "We look forward to working with you.\nBest Regards,\nSUP Team",
+                        
+                        name)
+                );
             default: return("sample login details body");
         }
     }

@@ -4,9 +4,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -16,13 +14,16 @@ import com.soni.usermanagement.dto.AccountsAppResponse;
 import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.model.AccountsAppModel;
 import com.soni.usermanagement.model.AccountsModel;
 import com.soni.usermanagement.model.FileAppFileTypeModel;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.AccountsAppRepo;
 import com.soni.usermanagement.repository.AccountsRepo;
 import com.soni.usermanagement.repository.FileAppModelRepo;
 import com.soni.usermanagement.repository.FileAppRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -51,6 +52,8 @@ public class AccountsAppController {
     private AccountsRepo accountsRepo;
     @Autowired
     private FileAppModelRepo fileAppModelRepo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     final String uri = "http://localhost:8080/accounts";
 
@@ -77,8 +80,15 @@ public class AccountsAppController {
 
     @PostMapping("/accountApps")
     public ResponseEntity<?> addAccountApp(@RequestBody AccountsAppRequest newAccountApp, 
-                                            Principal principal, 
-                                            @RequestHeader(name = "Authorization") String token){
+    Principal principal, 
+    @RequestHeader(name = "Authorization") String token){
+        
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // get all file, app codes
         List<String> fileCodes = new ArrayList<>();
@@ -196,7 +206,15 @@ public class AccountsAppController {
     }
 
     @DeleteMapping("/accountApps/{id}")
-    public ResponseEntity<?> deleteAccountApp(@PathVariable("id") Long id) {
+    public ResponseEntity<?> deleteAccountApp(@PathVariable("id") Long id,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         AccountsAppModel account = repo.findById(id).orElse(null);
         if(account == null)
@@ -218,10 +236,17 @@ public class AccountsAppController {
 
     @PutMapping("/accountApps/{accountCode}")
     public ResponseEntity<?> updateAccountApp(@Valid @RequestBody AccountsAppRequest newAccountApp, 
-                                                @PathVariable("accountCode") String accountCode,
-                                                Principal principal,
-                                                @RequestHeader(name = "Authorization") String token) {
+    @PathVariable("accountCode") String accountCode,
+    Principal principal,
+    @RequestHeader(name = "Authorization") String token) {
         
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
+
         // get all file, app codes
         List<String> fileCodes = new ArrayList<>();
         List<String> appCodes = new ArrayList<>();

@@ -1,5 +1,6 @@
 package com.soni.usermanagement.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -8,11 +9,14 @@ import com.soni.usermanagement.dto.ResponseMessage;
 import com.soni.usermanagement.exception.EntryAlreadyExists;
 import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 import com.soni.usermanagement.methods.AccountValidator;
 import com.soni.usermanagement.model.AccountsModel;
 import com.soni.usermanagement.model.BankManagement;
+import com.soni.usermanagement.model.UserManagement;
 import com.soni.usermanagement.repository.AccountsRepo;
 import com.soni.usermanagement.repository.BankManagementRepo;
+import com.soni.usermanagement.repository.UserManagementRepo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +37,8 @@ public class AccountsController {
     private AccountsRepo repo;
     @Autowired
     private BankManagementRepo bankRepo;
+    @Autowired
+    private UserManagementRepo userManagementRepo;
 
     @GetMapping("/accounts")
     public List<AccountsModel> getAllAccounts() {
@@ -55,7 +61,15 @@ public class AccountsController {
     }
 
     @PostMapping("/accounts")
-    public ResponseEntity<?> addAccount(@RequestBody AccountsModel newAccount) {
+    public ResponseEntity<?> addAccount(@RequestBody AccountsModel newAccount,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         if (!AccountValidator.validateAccount(newAccount))
             throw new InvalidEntry("Check the new contents again");
@@ -89,7 +103,15 @@ public class AccountsController {
     }
 
     @DeleteMapping("/accounts/{keyword}")
-    public ResponseEntity<?> deleteAccount(@PathVariable("keyword") String keyword) {
+    public ResponseEntity<?> deleteAccount(@PathVariable("keyword") String keyword,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
 
         // find by account code
         AccountsModel account = repo.findByAccountCode(keyword).orElse(null);
@@ -108,7 +130,16 @@ public class AccountsController {
     }
 
     @PutMapping("/accounts/{keyword}")
-    public ResponseEntity<?> updateAccount(@Valid @RequestBody AccountsModel newAccount, @PathVariable("keyword") String keyword) {
+    public ResponseEntity<?> updateAccount(@Valid @RequestBody AccountsModel newAccount, 
+    @PathVariable("keyword") String keyword,
+    Principal principal) {
+
+        // checking authorization
+        UserManagement userManagement = userManagementRepo.findByEmail(principal.getName()).orElse(null);
+        if(!userManagement.getProfile().equalsIgnoreCase("admin") && 
+        !userManagement.getProfile().equalsIgnoreCase("update_only")) {
+            throw new UnauthorizedAccess(principal.getName());
+        }
         
         // find by account code
         AccountsModel account = repo.findByAccountCode(keyword).orElse(null);

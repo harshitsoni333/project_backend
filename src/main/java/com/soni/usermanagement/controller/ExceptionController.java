@@ -9,6 +9,7 @@ import com.soni.usermanagement.exception.EntryNotFound;
 import com.soni.usermanagement.exception.InvalidEntry;
 import com.soni.usermanagement.exception.MethodNotAccepted;
 import com.soni.usermanagement.exception.PasswordNotValid;
+import com.soni.usermanagement.exception.UnauthorizedAccess;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @ControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(UnauthorizedAccess.class)
+    public ResponseEntity<Object> handleUnauthorizedAccess(Exception ex, WebRequest request) {
+
+        ResponseMessage responseMessage = new ResponseMessage(
+            LocalDateTime.now(), HttpStatus.UNAUTHORIZED.toString(), ex.getMessage()
+            );
+        
+        return new ResponseEntity<>(responseMessage, new HttpHeaders(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(EntryNotFound.class)
     public ResponseEntity<Object> handleAnyException(Exception ex, WebRequest request) {
